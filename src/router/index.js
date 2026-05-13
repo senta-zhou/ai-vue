@@ -6,6 +6,12 @@ const backendRoutes = [
   {
     path: "/back",
     component: BackendLayout,
+    children: [
+      {
+        path: "dashboard",
+        component: () => import("@/views/Dashboard.vue"),
+      },
+    ],
   },
 ];
 
