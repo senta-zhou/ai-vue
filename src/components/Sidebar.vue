@@ -18,6 +18,7 @@
         v-for="item in router.options.routes[0].children"
         :index="item.path"
         :key="item.path"
+        @click="selectMenu"
       >
         <el-icon><component :is="item.meta.icon" /></el-icon>
         <template #title>{{ item.meta.title }}</template>
@@ -33,8 +34,10 @@
   const iconUrl = new URL("/src/assets/images/机器人.png", import.meta.url)
     .href;
 
-  const handleOpen = () => {};
-  const handleClose = () => {};
+  const selectMenu = (key) => {
+    const currentRoute = router.options.routes[0];
+    router.push(`${currentRoute.path}/${key.index}`);
+  };
 </script>
 
 <style lang="scss" scoped>
