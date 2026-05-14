@@ -2,11 +2,18 @@
   <el-aside width="264px">
     <el-menu
       default-active="2"
-      class="el-menu-vertical-demo"
+      class="menu-style"
       :collapse="isCollapse"
       @open="handleOpen"
       @close="handleClose"
     >
+      <div class="brand">
+        <el-image style="width: 50px; height: 50px" :src="iconUrl" alt="logo" />
+        <div class="info-card">
+          <h1 class="brand-title">心理健康AI助手</h1>
+          <p class="sub-title">管理后台</p>
+        </div>
+      </div>
       <el-menu-item
         v-for="item in router.options.routes[0].children"
         :index="item.path"
@@ -22,8 +29,38 @@
 <script setup>
   import { useRouter } from "vue-router";
   const router = useRouter();
-  console.log(router, "router");
+
+  const iconUrl = new URL("/src/assets/images/机器人.png", import.meta.url)
+    .href;
 
   const handleOpen = () => {};
   const handleClose = () => {};
 </script>
+
+<style lang="scss" scoped>
+  .menu-style {
+    height: 100%;
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      background-color: #fff;
+      border-bottom: 1px solid #e4e7ed;
+      .info-card {
+        margin-left: 10px;
+        .brand-title {
+          font-size: 20px;
+          font-weight: bold;
+          color: #303133;
+          margin-bottom: 5px;
+        }
+        .sub-title {
+          font-size: 14px;
+          font-weight: normal;
+          color: #909399;
+        }
+      }
+    }
+  }
+</style>

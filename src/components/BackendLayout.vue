@@ -1,9 +1,12 @@
 <template>
   <div class="backend-layout">
-    <el-container>
-      <el-header><Navbar /></el-header>
+    <el-container class="main-container">
+      <!-- 侧边栏 -->
+      <Sidebar />
+      <!-- 主内容区域 -->
       <el-container>
-        <Sidebar />
+        <!-- 导航栏 -->
+        <el-header><Navbar /></el-header>
         <el-main>
           <!-- 子路由出口 -->
           <router-view />
@@ -23,5 +26,8 @@
     // 100vh 表示视口高度, 即浏览器窗口高度
     // 100% 表示父元素高度
     height: 100vh;
+    .main-container {
+      height: 100%;
+    }
   }
 </style>
