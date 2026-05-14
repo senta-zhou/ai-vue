@@ -20,7 +20,6 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #f5f7fa;
     .page-title {
       font-size: 24px;
       color: #212529;

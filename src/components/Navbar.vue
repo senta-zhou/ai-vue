@@ -2,7 +2,7 @@
   <div class="navbar">
     <!-- 导航栏左侧内容 -->
     <div class="flex-box">
-      <el-button>
+      <el-button @click="handleCollapse">
         <el-icon><Expand /></el-icon
       ></el-button>
       <p class="page-title">导航栏</p>
@@ -29,10 +29,15 @@
 </template>
 
 <script setup>
+  import { useAdminStore } from "@/stores/admin";
+  const adminStore = useAdminStore();
   const handleCommand = (command) => {
     if (command === "logout") {
       // 退出登录逻辑
     }
+  };
+  const handleCollapse = () => {
+    adminStore.toggleCollapse();
   };
 </script>
 
