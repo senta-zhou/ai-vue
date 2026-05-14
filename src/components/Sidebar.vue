@@ -1,12 +1,6 @@
 <template>
   <el-aside width="264px">
-    <el-menu
-      default-active="2"
-      class="menu-style"
-      :collapse="isCollapse"
-      @open="handleOpen"
-      @close="handleClose"
-    >
+    <el-menu default-active="2" class="menu-style">
       <div class="brand">
         <el-image style="width: 50px; height: 50px" :src="iconUrl" alt="logo" />
         <div class="info-card">
