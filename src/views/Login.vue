@@ -51,9 +51,11 @@
 </template>
 
 <script setup>
-  import { ref } from "vue";
+  import { login } from "@/api/admin";
+  import { ref, reactive } from "vue";
+  import { ElMessage } from "element-plus";
   const ruleFormRef = ref(null);
-  const formData = ref({
+  const formData = reactive({
     username: "",
     password: "",
   });
@@ -70,7 +72,25 @@
     // 校验表单
     formEl.validate((valid) => {
       if (valid) {
-        console.log("登录成功");
+        login(formData)
+          .then((data) => {
+            // 判断token是否存在
+            if (!data.token) return console.error("登录失败");
+            // 登录成功，保存token和用户数据
+            localStorage.setItem("token", data.token);
+            // 处理用户数据，避免循环引用
+            const userData =
+              typeof data.user === "object" && data.user !== null
+                ? JSON.parse(JSON.stringify(data.user))
+                : data.user;
+            localStorage.setItem("user", JSON.stringify(userData));
+            console.log("登录成功");
+          })
+          .catch((error) => {
+            ElMessage.error(
+              "登录失败：" + (error.response?.data?.msg || "网络异常"),
+            );
+          });
       }
     });
   };
