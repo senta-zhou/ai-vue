@@ -37,7 +37,7 @@ service.interceptors.response.use(
           window.location.href = "/auth/login";
         } else {
           ElMessage.error(data.msg || "登录过期，请重新登录");
-          return Promise.reject("网路请求失败...");
+          return Promise.reject("网络请求失败...");
         }
       }
     }

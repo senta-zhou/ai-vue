@@ -54,6 +54,9 @@
   import { login } from "@/api/admin";
   import { ref, reactive } from "vue";
   import { ElMessage } from "element-plus";
+  import { useRouter } from "vue-router";
+  import { Back } from "@element-plus/icons-vue";
+
   const ruleFormRef = ref(null);
   const formData = reactive({
     username: "",
@@ -67,6 +70,8 @@
   });
 
   // 登录表单提交
+  const router = useRouter();
+
   const submitForm = (formEl) => {
     if (!formEl) return;
     // 校验表单
@@ -80,10 +85,14 @@
             localStorage.setItem("token", data.token);
             // 处理用户数据，避免循环引用
             const userData =
-              typeof data.user === "object" && data.user !== null
-                ? JSON.parse(JSON.stringify(data.user))
-                : data.user;
-            localStorage.setItem("user", JSON.stringify(userData));
+              typeof data.userInfo === "object" && data.userInfo !== null
+                ? JSON.parse(JSON.stringify(data.userInfo))
+                : data.userInfo;
+            localStorage.setItem("userInfo", JSON.stringify(userData));
+            // 根据用户角色决定跳转路径
+            if (data.userInfo.userType === 2) {
+              router.push("/back/dashboard");
+            }
             console.log("登录成功");
           })
           .catch((error) => {
