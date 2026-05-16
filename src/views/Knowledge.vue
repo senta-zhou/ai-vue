@@ -2,8 +2,7 @@
   <div>
     <PageHead title="知识文章">
       <template #buttons>
-        <el-button type="primary">新增</el-button>
-        <el-button type="primary">编辑</el-button>
+        <el-button type="primary" @click="dialogVisible = true">新增</el-button>
       </template>
     </PageHead>
     <TableSearch :formItem="formItem" @search="handleSearch"></TableSearch>
@@ -63,6 +62,7 @@
       @change="handleChange"
       style="margin-top: 25px"
     />
+    <ArticleDialog v-model:modelValue="dialogVisible"></ArticleDialog>
   </div>
 </template>
 <script setup>
@@ -70,6 +70,8 @@
   import { CategoryTree, ArticlePage } from "@/api/admin";
   import PageHead from "@/components/PageHead.vue";
   import TableSearch from "@/components/TableSearch.vue";
+  import ArticleDialog from "@/components/ArticleDialog.vue";
+
   const formItem = [
     {
       comb: "input",
@@ -112,17 +114,16 @@
 
   const tableData = ref([]);
   const handleSearch = async (formData) => {
-    console.log(formData, "查询");
     const params = {
       ...pagenation,
       ...formData,
     };
     const { records, total } = await ArticlePage(params);
-    console.log(records, "查询结果");
     tableData.value = records;
     pagenation.total = total;
   };
 
+  // 分页效果
   const handleChange = (page) => {
     pagenation.currentPage = page;
     handleSearch();
@@ -146,4 +147,7 @@
     // 获取列表
     handleSearch();
   });
+
+  // 新增文章弹窗
+  const dialogVisible = ref(false);
 </script>
