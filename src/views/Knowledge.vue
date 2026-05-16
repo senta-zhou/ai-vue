@@ -55,6 +55,14 @@
         </template>
       </el-table-column>
     </el-table>
+    <el-pagination
+      :page-size="pagenation.size"
+      :pager-count="11"
+      layout="prev, pager, next"
+      :total="pagenation.total"
+      @change="handleChange"
+      style="margin-top: 25px"
+    />
   </div>
 </template>
 <script setup>
@@ -113,6 +121,11 @@
     console.log(records, "查询结果");
     tableData.value = records;
     pagenation.total = total;
+  };
+
+  const handleChange = (page) => {
+    pagenation.currentPage = page;
+    handleSearch();
   };
 
   // 分类映射
