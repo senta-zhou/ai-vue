@@ -62,7 +62,10 @@
       @change="handleChange"
       style="margin-top: 25px"
     />
-    <ArticleDialog v-model:modelValue="dialogVisible"></ArticleDialog>
+    <ArticleDialog
+      v-model:modelValue="dialogVisible"
+      :categoryOptions="categoryOptions"
+    ></ArticleDialog>
   </div>
 </template>
 <script setup>
