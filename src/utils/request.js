@@ -24,26 +24,23 @@ service.interceptors.request.use(
 // 响应拦截器
 service.interceptors.response.use(
   (response) => {
-    const { data, config } = response;
-    // 处理业务状态码
+    const { data } = response;
     if (data.code === "200") {
       return data.data;
     } else {
       if (data.code === "-1") {
-        if (!config.url?.includes("/login")) {
-          ElMessage.error(data.msg || "登录过期，请重新登录");
-          localStorage.removeItem("token");
-          localStorage.removeItem("userInfo");
-          window.location.href = "/auth/login";
-        } else {
-          ElMessage.error(data.msg || "登录过期，请重新登录");
-          return Promise.reject("网络请求失败...");
-        }
+        ElMessage.error(data.msg || "登录过期，请重新登录");
+        localStorage.removeItem("token");
+        localStorage.removeItem("userInfo");
+        window.location.href = "/auth/login";
+      } else {
+        ElMessage.error(data.msg || "请求失败");
       }
+      return Promise.reject(data);
     }
-    return response;
   },
   (error) => {
+    ElMessage.error("网络异常或请求失败");
     return Promise.reject(error);
   },
 );

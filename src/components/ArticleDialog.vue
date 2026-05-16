@@ -61,12 +61,20 @@
             :before-upload="beforeUpload"
             :http-request="handleRequest"
             accept="image/*"
+            :show-file-list="false"
           >
             <div v-if="!imgUrl" class="cover-placeholder">
               <p>点击上传封面图片</p>
             </div>
             <img v-else :src="imgUrl" alt="封面图片" class="cover-image" />
           </el-upload>
+          <el-button
+            v-if="imgUrl"
+            type="danger"
+            class="cover-remove"
+            @click="removeCover"
+            >移除封面</el-button
+          >
         </div>
       </el-form-item>
     </el-form>
@@ -75,6 +83,9 @@
 
 <script setup>
   import { defineProps, computed, ref, reactive } from "vue";
+  import { UploadFile } from "@/api/admin";
+  import { ElMessage } from "element-plus";
+  import { baseUrl } from "@/config";
   const props = defineProps({
     modelValue: {
       type: Boolean,
@@ -147,7 +158,20 @@
     return true;
   };
   // 上传成功
-  const handleRequest = () => {};
+  const handleRequest = async ({ file }) => {
+    const businessId = crypto.randomUUID();
+    const res = await UploadFile(file, {
+      businessId: businessId,
+    });
+    imgUrl.value = baseUrl + res.filePath;
+    formData.coverImage = res.filePath;
+  };
+
+  // 移除封面
+  const removeCover = () => {
+    imgUrl.value = "";
+    formData.coverImage = "";
+  };
 </script>
 
 <style lang="scss" scoped>
@@ -160,5 +184,10 @@
     justify-content: center;
     color: #8b949e;
     background-color: #f6f8fa;
+  }
+  .cover-image {
+    width: 200px;
+    height: 120px;
+    display: block;
   }
 </style>
