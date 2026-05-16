@@ -7,11 +7,59 @@
       </template>
     </PageHead>
     <TableSearch :formItem="formItem" @search="handleSearch"></TableSearch>
+    <el-table :data="tableData" style="width: 100% margin-top=25px">
+      <el-table-column label="文章标题" width="200" fixed="left">
+        <template #default="scope">
+          <div style="display: flex; align-items: center">
+            <el-icon><Timer /></el-icon>
+            <span>{{ scope.row.title }}</span>
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column label="分类" width="150">
+        <template #default="scope">
+          <div style="display: flex; align-items: center">
+            <el-icon><Timer /></el-icon>
+            <span>{{ categoryMap[scope.row.categoryId] }}</span>
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column
+        prop="authorName"
+        label="作者"
+        width="150"
+      ></el-table-column>
+      <el-table-column
+        prop="readCount"
+        label="阅读量"
+        width="100"
+      ></el-table-column>
+      <el-table-column
+        prop="publishedAt"
+        label="创建时间"
+        width="150"
+      ></el-table-column>
+      <el-table-column label="操作" width="240" fixed="right">
+        <template #default="scope">
+          <el-button text type="primary">编辑</el-button>
+          <el-button
+            text
+            v-if="scope.row.status === 0 || scope.row.status === 2"
+            type="success"
+            >发布</el-button
+          >
+          <el-button text v-if="scope.row.status === 1" type="warning"
+            >下线</el-button
+          >
+          <el-button text type="danger">删除</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
   </div>
 </template>
 <script setup>
   import { ref, onMounted, reactive } from "vue";
-  import { CategoryTree } from "@/api/admin";
+  import { CategoryTree, ArticlePage } from "@/api/admin";
   import PageHead from "@/components/PageHead.vue";
   import TableSearch from "@/components/TableSearch.vue";
   const formItem = [
@@ -48,8 +96,23 @@
       ],
     },
   ];
-  const handleSearch = (formData) => {
+  const pagenation = reactive({
+    currentPage: 1,
+    size: 10,
+    total: 0,
+  });
+
+  const tableData = ref([]);
+  const handleSearch = async (formData) => {
     console.log(formData, "查询");
+    const params = {
+      ...pagenation,
+      ...formData,
+    };
+    const { records, total } = await ArticlePage(params);
+    console.log(records, "查询结果");
+    tableData.value = records;
+    pagenation.total = total;
   };
 
   // 分类映射
@@ -66,5 +129,8 @@
       };
     });
     formItem[1].options = categoryOptions.value;
+
+    // 获取列表
+    handleSearch();
   });
 </script>
