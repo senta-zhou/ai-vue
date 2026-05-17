@@ -43,3 +43,13 @@ export function getArticleDetail(id) {
 export function UpdateArticle(id, data) {
   return service.put(`/knowledge/article/${id}`, data);
 }
+
+// 改变文章状态
+export function ChangeArticleStatus(id, status) {
+  return service.put(`/knowledge/article/${id}/status`, status);
+}
+
+// 删除文章
+export function DeleteArticle(id) {
+  return service.delete(`/knowledge/article/${id}`);
+}

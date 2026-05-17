@@ -47,12 +47,19 @@
             text
             v-if="scope.row.status === 0 || scope.row.status === 2"
             type="success"
+            @click="handlePublish(scope.row)"
             >发布</el-button
           >
-          <el-button text v-if="scope.row.status === 1" type="warning"
+          <el-button
+            text
+            v-if="scope.row.status === 1"
+            type="warning"
+            @click="handleUnpublish(scope.row)"
             >下线</el-button
           >
-          <el-button text type="danger">删除</el-button>
+          <el-button text type="danger" @click="handleDelete(scope.row)"
+            >删除</el-button
+          >
         </template>
       </el-table-column>
     </el-table>
@@ -74,10 +81,17 @@
 </template>
 <script setup>
   import { ref, onMounted, reactive } from "vue";
-  import { CategoryTree, ArticlePage, getArticleDetail } from "@/api/admin";
+  import {
+    CategoryTree,
+    ArticlePage,
+    getArticleDetail,
+    ChangeArticleStatus,
+    DeleteArticle,
+  } from "@/api/admin";
   import PageHead from "@/components/PageHead.vue";
   import TableSearch from "@/components/TableSearch.vue";
   import ArticleDialog from "@/components/ArticleDialog.vue";
+  import { ElMessageBox, ElMessage } from "element-plus";
 
   const formItem = [
     {
@@ -177,5 +191,47 @@
   const handleSuccess = () => {
     dialogVisible.value = false;
     handleSearch();
+  };
+
+  // 发布文章
+  const handlePublish = (row) => {
+    ElMessageBox.confirm(`确认发布文章${row.title}吗？`, "发布确认", {
+      confirmButtonText: "确定",
+      cancelButtonText: "取消",
+      type: "warning",
+    }).then(() => {
+      ChangeArticleStatus(row.id, { status: 1 }).then(() => {
+        ElMessage.success("发布成功");
+        handleSearch();
+      });
+    });
+  };
+
+  // 下线文章
+  const handleUnpublish = (row) => {
+    ElMessageBox.confirm(`确认下线文章${row.title}吗？`, "下线确认", {
+      confirmButtonText: "确定",
+      cancelButtonText: "取消",
+      type: "warning",
+    }).then(() => {
+      ChangeArticleStatus(row.id, { status: 2 }).then(() => {
+        ElMessage.success("下线成功");
+        handleSearch();
+      });
+    });
+  };
+
+  // 删除文章
+  const handleDelete = (row) => {
+    ElMessageBox.confirm(`确认删除文章${row.title}吗？`, "删除确认", {
+      confirmButtonText: "确定",
+      cancelButtonText: "取消",
+      type: "danger",
+    }).then(() => {
+      DeleteArticle(row.id).then(() => {
+        ElMessage.success("删除成功");
+        handleSearch();
+      });
+    });
   };
 </script>
