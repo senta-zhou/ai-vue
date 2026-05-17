@@ -35,6 +35,39 @@
       @change="handleChange"
       style="margin-top: 25px"
     />
+    <el-dialog
+      title="咨询对话详情"
+      v-model="showDetailDialog"
+      width="70%"
+      :close-on-click-modal="false"
+    >
+      <!-- 会话详情 -->
+      <div class="session-detail">
+        <!-- 会话头 -->
+        <div class="session-head">
+          <div class="detail-row">
+            <div class="detail-label">用户：</div>
+            <div class="detail-value">
+              {{ sessionDetail.userNickname }}
+            </div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">开始时间：</div>
+            <div class="detail-value">
+              {{ sessionDetail.startedAt }}
+            </div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">消息数：</div>
+            <div class="detail-value">
+              {{ sessionDetail.messageCount }}
+            </div>
+          </div>
+        </div>
+        <!-- 会话内容 -->
+        <div class="session-content"></div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -50,9 +83,15 @@
     currentPage: 1,
   });
 
+  // 会话详情弹窗
+  const showDetailDialog = ref(false);
+  // 当前会话详情
+  const sessionDetail = ref(null);
+
   // 查看详情
   const viewSessionDetail = (row) => {
-    console.log(row);
+    sessionDetail.value = row;
+    showDetailDialog.value = true;
   };
 
   // 搜索
