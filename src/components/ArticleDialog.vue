@@ -77,6 +77,16 @@
           >
         </div>
       </el-form-item>
+      <el-form-item label="文章内容" prop="content">
+        <RichTextEditor
+          v-model="formData.content"
+          placeholder="请输入文章内容,支持富文本格式,可使用加粗，斜体，下划线，删除线，列表，代码块，图片，链接，引用等格式"
+          max-char-count="5000"
+          @change="handleContentChange"
+          @created="handleEditorCreated"
+          min-height="400px"
+        />
+      </el-form-item>
     </el-form>
   </el-dialog>
 </template>
@@ -86,6 +96,8 @@
   import { UploadFile } from "@/api/admin";
   import { ElMessage } from "element-plus";
   import { baseUrl } from "@/config";
+  import RichTextEditor from "./RichTextEditor.vue";
+
   const props = defineProps({
     modelValue: {
       type: Boolean,
@@ -171,6 +183,16 @@
   const removeCover = () => {
     imgUrl.value = "";
     formData.coverImage = "";
+  };
+
+  // 文章内容改变时触发
+  const handleContentChange = (content) => {
+    formData.content = content;
+  };
+
+  // 富文本编辑器创建时触发
+  const handleEditorCreated = (editor) => {
+    formData.editor = editor;
   };
 </script>
 
