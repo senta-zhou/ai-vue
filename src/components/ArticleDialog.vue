@@ -88,12 +88,32 @@
         />
       </el-form-item>
     </el-form>
+    <div v-if="btnPreview" class="preview-container">
+      <div class="preview-title">内容预览</div>
+      <div class="preview-content">
+        <div v-html="formData.content"></div>
+      </div>
+    </div>
+    <template #footer>
+      <el-button type="primary" @click="btnPreview = !btnPreview">
+        {{ btnPreview ? "隐藏预览" : "预览效果" }}</el-button
+      >
+      <el-button type="primary" @click="handleClose"> 取消</el-button>
+      <el-button
+        type="primary"
+        @click="handleSubmit"
+        :loading="loading"
+        @success="handleSuccess"
+      >
+        新增文章</el-button
+      >
+    </template>
   </el-dialog>
 </template>
 
 <script setup>
-  import { defineProps, computed, ref, reactive } from "vue";
-  import { UploadFile } from "@/api/admin";
+  import { defineProps, computed, ref, reactive, nextTick } from "vue";
+  import { UploadFile, AddArticle } from "@/api/admin";
   import { ElMessage } from "element-plus";
   import { baseUrl } from "@/config";
   import RichTextEditor from "./RichTextEditor.vue";
@@ -113,7 +133,7 @@
     set: (val) => emit("update:modelValue", val),
   });
 
-  const emit = defineEmits(["update:modelValue"]);
+  const emit = defineEmits(["update:modelValue", "success"]);
   const handleClose = () => {};
 
   // 表单数据
@@ -137,6 +157,14 @@
       },
     ],
     categoryId: [{ required: true, message: "请选择分类", trigger: "change" }],
+    content: [
+      { required: true, message: "请输入文章内容", trigger: "blur" },
+      {
+        max: 5000,
+        message: "文章内容长度必须在5000个字符以内",
+        trigger: "blur",
+      },
+    ],
   });
   const commonTags = [
     "情绪管理",
@@ -187,12 +215,45 @@
 
   // 文章内容改变时触发
   const handleContentChange = (content) => {
-    formData.content = content;
+    formData.content = content.html;
   };
 
   // 富文本编辑器创建时触发
+  const editorInstance = ref(null);
   const handleEditorCreated = (editor) => {
-    formData.editor = editor;
+    editorInstance.value = editor;
+    if (formData.content) {
+      nextTick(() => {
+        editorInstance.value.setHTML(formData.content);
+      });
+    }
+  };
+
+  const btnPreview = ref(false);
+
+  // 提交
+  const formRef = ref(null);
+  const loading = ref(false);
+  const handleSubmit = () => {
+    formRef.value.validate((valid, fields) => {
+      if (valid) {
+        loading.value = true;
+      }
+      const submitData = {
+        ...formData,
+        tags: formData.tagArray.join(","),
+      };
+      delete submitData.tagArray;
+      AddArticle(submitData).then((res) => {
+        if (res.code === 200) {
+          loading.value = false;
+          ElMessage.success("新增文章成功");
+          handleClose();
+        } else {
+          ElMessage.error(res.msg);
+        }
+      });
+    });
   };
 </script>
 

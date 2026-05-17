@@ -28,3 +28,8 @@ export function UploadFile(file, businessInfo) {
     },
   });
 }
+
+// 新增文章
+export function AddArticle(data) {
+  return service.post("/knowledge/article", data);
+}
