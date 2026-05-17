@@ -2,12 +2,12 @@
   <div>
     <PageHead title="知识文章">
       <template #buttons>
-        <el-button type="primary" @click="dialogVisible = true">新增</el-button>
+        <el-button type="primary" @click="handleEdit({})">新增</el-button>
       </template>
     </PageHead>
     <TableSearch :formItem="formItem" @search="handleSearch"></TableSearch>
     <el-table :data="tableData" style="width: 100% margin-top=25px">
-      <el-table-column label="文章标题" width="200" fixed="left">
+      <el-table-column label="文章标题" width="170" fixed="left">
         <template #default="scope">
           <div style="display: flex; align-items: center">
             <el-icon><Timer /></el-icon>
@@ -40,7 +40,9 @@
       ></el-table-column>
       <el-table-column label="操作" width="240" fixed="right">
         <template #default="scope">
-          <el-button text type="primary">编辑</el-button>
+          <el-button text type="primary" @click="handleEdit(scope.row)"
+            >编辑</el-button
+          >
           <el-button
             text
             v-if="scope.row.status === 0 || scope.row.status === 2"
@@ -65,12 +67,14 @@
     <ArticleDialog
       v-model:modelValue="dialogVisible"
       :categoryOptions="categoryOptions"
+      :article="currentArticle"
+      @success="handleSuccess"
     ></ArticleDialog>
   </div>
 </template>
 <script setup>
   import { ref, onMounted, reactive } from "vue";
-  import { CategoryTree, ArticlePage } from "@/api/admin";
+  import { CategoryTree, ArticlePage, getArticleDetail } from "@/api/admin";
   import PageHead from "@/components/PageHead.vue";
   import TableSearch from "@/components/TableSearch.vue";
   import ArticleDialog from "@/components/ArticleDialog.vue";
@@ -153,4 +157,25 @@
 
   // 新增文章弹窗
   const dialogVisible = ref(false);
+  // 当前文章
+  const currentArticle = ref(null);
+  // 编辑文章
+  const handleEdit = (row) => {
+    if (!row.id) {
+      // 新增文章
+      currentArticle.value = {};
+      dialogVisible.value = true;
+    } else {
+      // 编辑文章
+      getArticleDetail(row.id).then((res) => {
+        currentArticle.value = res;
+        dialogVisible.value = true;
+      });
+    }
+  };
+  // 新增文章成功
+  const handleSuccess = () => {
+    dialogVisible.value = false;
+    handleSearch();
+  };
 </script>

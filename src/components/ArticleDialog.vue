@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    title="新增文章"
+    :title="isEdit ? '编辑文章' : '新增文章'"
     v-model="dialogVisible"
     width="50%"
     @close="handleClose"
@@ -66,7 +66,12 @@
             <div v-if="!imgUrl" class="cover-placeholder">
               <p>点击上传封面图片</p>
             </div>
-            <img v-else :src="imgUrl" alt="封面图片" class="cover-image" />
+            <img
+              v-if="imgUrl"
+              :src="imgUrl"
+              alt="封面图片"
+              class="cover-image"
+            />
           </el-upload>
           <el-button
             v-if="imgUrl"
@@ -81,7 +86,7 @@
         <RichTextEditor
           v-model="formData.content"
           placeholder="请输入文章内容,支持富文本格式,可使用加粗，斜体，下划线，删除线，列表，代码块，图片，链接，引用等格式"
-          max-char-count="5000"
+          :max-char-count="5000"
           @change="handleContentChange"
           @created="handleEditorCreated"
           min-height="400px"
@@ -95,24 +100,19 @@
       </div>
     </div>
     <template #footer>
-      <el-button type="primary" @click="btnPreview = !btnPreview">
+      <el-button type="info" @click="btnPreview = !btnPreview">
         {{ btnPreview ? "隐藏预览" : "预览效果" }}</el-button
       >
-      <el-button type="primary" @click="handleClose"> 取消</el-button>
-      <el-button
-        type="primary"
-        @click="handleSubmit"
-        :loading="loading"
-        @success="handleSuccess"
-      >
-        新增文章</el-button
+      <el-button type="danger" @click="handleClose"> 取消</el-button>
+      <el-button type="primary" @click="handleSubmit" :loading="loading">
+        {{ isEdit ? "更新文章" : "创建文章" }}</el-button
       >
     </template>
   </el-dialog>
 </template>
 
 <script setup>
-  import { defineProps, computed, ref, reactive, nextTick } from "vue";
+  import { defineProps, computed, ref, reactive, nextTick, watch } from "vue";
   import { UploadFile, AddArticle } from "@/api/admin";
   import { ElMessage } from "element-plus";
   import { baseUrl } from "@/config";
@@ -127,14 +127,26 @@
       type: Array,
       default: () => [],
     },
+    article: {
+      type: Object,
+      default: null,
+    },
   });
   const dialogVisible = computed({
     get: () => props.modelValue,
     set: (val) => emit("update:modelValue", val),
   });
 
+  const isEdit = computed(() => !!props.article?.id);
   const emit = defineEmits(["update:modelValue", "success"]);
-  const handleClose = () => {};
+
+  const handleClose = () => {
+    formRef.value.resetFields();
+    businessId.value = null;
+    formData.tagArray = [];
+    removeCover();
+    emit("update:modelValue", false);
+  };
 
   // 表单数据
   const formData = reactive({
@@ -197,11 +209,12 @@
     }
     return true;
   };
+  const businessId = ref(null);
   // 上传成功
   const handleRequest = async ({ file }) => {
-    const businessId = crypto.randomUUID();
+    businessId.value = crypto.randomUUID();
     const res = await UploadFile(file, {
-      businessId: businessId,
+      businessId: businessId.value,
     });
     imgUrl.value = baseUrl + res.filePath;
     formData.coverImage = res.filePath;
@@ -224,7 +237,7 @@
     editorInstance.value = editor;
     if (formData.content) {
       nextTick(() => {
-        editorInstance.value.setHTML(formData.content);
+        editorInstance.value.setHtml(formData.content);
       });
     }
   };
@@ -255,6 +268,22 @@
       });
     });
   };
+
+  // 监听编辑的数据
+  watch(
+    () => props.article,
+    (newVal) => {
+      nextTick(() => {
+        if (newVal) {
+          Object.assign(formData, newVal);
+          businessId.value = newVal.id;
+          imgUrl.value = newVal.coverImage ? baseUrl + newVal.coverImage : "";
+        } else {
+          removeCover();
+        }
+      });
+    },
+  );
 </script>
 
 <style lang="scss" scoped>

@@ -33,3 +33,8 @@ export function UploadFile(file, businessInfo) {
 export function AddArticle(data) {
   return service.post("/knowledge/article", data);
 }
+
+// 获取文章详情
+export function getArticleDetail(id) {
+  return service.get(`/knowledge/article/${id}`);
+}
