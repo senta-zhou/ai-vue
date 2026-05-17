@@ -53,3 +53,8 @@ export function ChangeArticleStatus(id, status) {
 export function DeleteArticle(id) {
   return service.delete(`/knowledge/article/${id}`);
 }
+
+// 获取咨询记录分页列表
+export function getConsultationsPage(params) {
+  return service.get("/psychological-chat/sessions", { params: params });
+}

@@ -64,10 +64,10 @@
       </el-table-column>
     </el-table>
     <el-pagination
-      :page-size="pagenation.size"
+      :page-size="pagination.size"
       :pager-count="11"
       layout="prev, pager, next"
-      :total="pagenation.total"
+      :total="pagination.total"
       @change="handleChange"
       style="margin-top: 25px"
     />
@@ -127,7 +127,7 @@
       ],
     },
   ];
-  const pagenation = reactive({
+  const pagination = reactive({
     currentPage: 1,
     size: 10,
     total: 0,
@@ -136,17 +136,17 @@
   const tableData = ref([]);
   const handleSearch = async (formData) => {
     const params = {
-      ...pagenation,
+      ...pagination,
       ...formData,
     };
     const { records, total } = await ArticlePage(params);
     tableData.value = records;
-    pagenation.total = total;
+    pagination.total = total;
   };
 
   // 分页效果
   const handleChange = (page) => {
-    pagenation.currentPage = page;
+    pagination.currentPage = page;
     handleSearch();
   };
 
