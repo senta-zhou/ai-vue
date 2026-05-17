@@ -113,7 +113,7 @@
 
 <script setup>
   import { defineProps, computed, ref, reactive, nextTick, watch } from "vue";
-  import { UploadFile, AddArticle } from "@/api/admin";
+  import { UploadFile, AddArticle, UpdateArticle } from "@/api/admin";
   import { ElMessage } from "element-plus";
   import { baseUrl } from "@/config";
   import RichTextEditor from "./RichTextEditor.vue";
@@ -252,20 +252,27 @@
       if (valid) {
         loading.value = true;
       }
+
       const submitData = {
         ...formData,
         tags: formData.tagArray.join(","),
       };
       delete submitData.tagArray;
-      AddArticle(submitData).then((res) => {
-        if (res.code === 200) {
+
+      if (!isEdit.value) {
+        submitData.id = businessId.value;
+        AddArticle(submitData).then((res) => {
           loading.value = false;
-          ElMessage.success("新增文章成功");
+          emit("success");
           handleClose();
-        } else {
-          ElMessage.error(res.msg);
-        }
-      });
+        });
+      } else {
+        UpdateArticle(submitData.id, submitData).then((res) => {
+          loading.value = false;
+          emit("success");
+          handleClose();
+        });
+      }
     });
   };
 
