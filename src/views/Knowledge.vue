@@ -127,13 +127,17 @@
       ],
     },
   ];
+
+  // 分页数据
   const pagination = reactive({
     currentPage: 1,
     size: 10,
     total: 0,
   });
 
+  // 表格数据
   const tableData = ref([]);
+  // 搜索文章
   const handleSearch = async (formData) => {
     const params = {
       ...pagination,

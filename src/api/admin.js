@@ -58,3 +58,13 @@ export function DeleteArticle(id) {
 export function getConsultationsPage(params) {
   return service.get("/psychological-chat/sessions", { params: params });
 }
+
+// 获取咨询记录详情
+export function getConsultationDetail(sessionId) {
+  return service.get(`/psychological-chat/sessions/${sessionId}/messages`);
+}
+
+// 获取情绪日记分页列表
+export function getEmotionDiaryPage(params) {
+  return service.get("/emotion-diary/admin/page", { params: params });
+}
