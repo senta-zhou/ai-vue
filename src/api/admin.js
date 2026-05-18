@@ -63,3 +63,9 @@ export function getConsultationsPage(params) {
 export function getConsultationDetail(sessionId) {
   return service.get(`/psychological-chat/sessions/${sessionId}/messages`);
 }
+
+
+// 获取情绪日记分页列表
+export function getEmotionDiaryPage(params) {
+  return service.get("/emotion-diary/admin/page", { params: params });
+}
