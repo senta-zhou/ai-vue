@@ -68,3 +68,8 @@ export function getConsultationDetail(sessionId) {
 export function getEmotionDiaryPage(params) {
   return service.get("/emotion-diary/admin/page", { params: params });
 }
+
+// 删除情绪日记
+export function deleteEmotionDiary(id) {
+  return service.delete(`/emotion-diary/admin/${id}`);
+}
