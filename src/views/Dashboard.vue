@@ -1,5 +1,6 @@
 <template>
   <div class="dashboard-container">
+    <!-- 顶部统计总览 -->
     <el-row :gutter="20">
       <!-- 卡片1 -->
       <el-col :span="6">
@@ -64,12 +65,26 @@
         </el-card>
       </el-col>
     </el-row>
+    <!-- 图表 -->
+    <el-row :gutter="20" style="margin-top: 20px">
+      <el-col :span="12">
+        <el-card style="width: 100%">
+          <template #header>
+            <div class="card-header">情绪趋势分析</div>
+          </template>
+          <div class="chart-content">
+            <div ref="emotionChartRef" style="height: 300px; width: 100%"></div>
+          </div>
+        </el-card>
+      </el-col>
+    </el-row>
   </div>
 </template>
 
 <script setup>
   import { ref, onMounted } from "vue";
   import { getAnalysisOverview } from "@/api/admin";
+  import * as echarts from "echarts";
 
   const iconUrl1 = new URL("@/assets/images/users.png", import.meta.url).href;
   const iconUrl2 = new URL("@/assets/images/like.png", import.meta.url).href;
@@ -78,10 +93,127 @@
   const iconUrl4 = new URL("@/assets/images/smile.png", import.meta.url).href;
 
   const aiData = ref({});
+
+  // 情绪趋势图表
+  let emotionChart = null;
+  const emotionChartRef = ref(null);
+  // 初始化图表
+  const initChart = () => {
+    initEmotionChart();
+  };
+  // 初始化情绪趋势图表
+  const initEmotionChart = () => {
+    if (!emotionChartRef.value) return;
+    // 销毁旧图表
+    if (emotionChart) {
+      emotionChart.dispose();
+    }
+    // 创建echarts实例
+    emotionChart = new echarts.init(emotionChartRef.value);
+
+    // 获取情绪趋势数据
+    const trendData = aiData.value?.emotionTrend || [];
+    // 配置项
+    const option = {
+      title: {
+        text: "情绪趋势分析",
+        textStyle: {
+          fontSize: 16,
+          color: "#2c3e50",
+          fontWeight: "bold",
+        },
+        left: "center",
+        top: "0",
+      },
+      tooltip: {
+        trigger: "axis",
+        borderColor: "#2c3e50",
+        textStyle: {
+          fontSize: 14,
+          color: "#2c3e50",
+        },
+      },
+      legend: {
+        data: ["平均情绪得分", "记录数量"],
+        top: "30",
+      },
+      // 控制容器位置
+      grid: {
+        top: 80,
+        bottom: "3%",
+        left: "3%",
+        right: "4%",
+      },
+      xAxis: {
+        type: "category",
+        data: trendData.map((item) => item.date),
+        axisLine: {
+          lineStyle: {
+            color: "#2c3e50",
+          },
+        },
+      },
+      yAxis: [
+        {
+          type: "value",
+          name: "情绪评分",
+          position: "left",
+          axisLine: {
+            lineStyle: {
+              color: "#2c3e50",
+            },
+          },
+        },
+        {
+          type: "value",
+          name: "记录数量",
+          position: "right",
+          axisLine: {
+            lineStyle: {
+              color: "#2c3e50",
+            },
+          },
+        },
+      ],
+      series: [
+        {
+          name: "平均情绪得分",
+          type: "line",
+          data: trendData.map((item) => item.avgMoodScore),
+          smooth: true,
+          lineStyle: {
+            width: 2,
+            color: "#667eea",
+          },
+          itemStyle: {
+            color: "#667eea",
+          },
+        },
+        {
+          name: "记录数量",
+          type: "line",
+          data: trendData.map((item) => item.recordCount),
+          smooth: true,
+          lineStyle: {
+            width: 2,
+            color: "#eeb5a3",
+          },
+          itemStyle: {
+            color: "#eeb5a3",
+          },
+        },
+      ],
+    };
+
+    // 设置图表配置项
+    emotionChart.setOption(option);
+  };
+
   onMounted(() => {
     getAnalysisOverview().then((res) => {
       console.log(res);
       aiData.value = res;
+      initChart();
     });
   });
 </script>
