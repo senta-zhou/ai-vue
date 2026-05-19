@@ -6,6 +6,7 @@ import AuthLayout from "@/components/AuthLayout.vue";
 const backendRoutes = [
   {
     path: "/back",
+    redirect: "/back/dashboard",
     component: BackendLayout,
     children: [
       {
@@ -68,6 +69,31 @@ const backendRoutes = [
 const router = createRouter({
   history: createWebHistory(),
   routes: backendRoutes,
+});
+
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    const userInfo = localStorage.getItem("userInfo")
+      ? JSON.parse(localStorage.getItem("userInfo"))
+      : null;
+    if (userInfo.userType == 2) {
+      // 后台页面
+      if (to.path.startsWith("/back")) {
+        next();
+      } else {
+        next("/back/dashboard");
+      }
+    } else if (userInfo.userType == 1) {
+      // 前台页面
+    }
+  } else {
+    if (to.path.startsWith("/back")) {
+      next("/auth/login");
+    } else {
+      next();
+    }
+  }
 });
 
 // 导出路由实例

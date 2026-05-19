@@ -78,3 +78,8 @@ export function deleteEmotionDiary(id) {
 export function getAnalysisOverview() {
   return service.get("/data-analytics/overview");
 }
+
+// 退出登录
+export function logout() {
+  return service.post("/user/logout");
+}
