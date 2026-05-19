@@ -1,8 +1,9 @@
 import { createRouter, createWebHistory } from "vue-router";
 import BackendLayout from "@/components/BackendLayout.vue";
+import FrontendLayout from "@/components/FrontendLayout.vue";
 import AuthLayout from "@/components/AuthLayout.vue";
 
-// 路由配置
+// 后台路由配置
 const backendRoutes = [
   {
     path: "/back",
@@ -11,7 +12,7 @@ const backendRoutes = [
     children: [
       {
         path: "dashboard",
-        component: () => import("@/views/Dashboard.vue"),
+        component: () => import("@/views/Backend/Dashboard.vue"),
         meta: {
           title: "数据分析",
           icon: "PieChart",
@@ -19,7 +20,7 @@ const backendRoutes = [
       },
       {
         path: "knowledge",
-        component: () => import("@/views/Knowledge.vue"),
+        component: () => import("@/views/Backend/Knowledge.vue"),
         meta: {
           title: "知识文章",
           icon: "ChatLineSquare",
@@ -27,7 +28,7 @@ const backendRoutes = [
       },
       {
         path: "consultations",
-        component: () => import("@/views/Consultations.vue"),
+        component: () => import("@/views/Backend/Consultations.vue"),
         meta: {
           title: "咨询管理",
           icon: "Message",
@@ -35,7 +36,7 @@ const backendRoutes = [
       },
       {
         path: "emotional",
-        component: () => import("@/views/Emotional.vue"),
+        component: () => import("@/views/Backend/Emotional.vue"),
         meta: {
           title: "情绪日志",
           icon: "User",
@@ -49,16 +50,54 @@ const backendRoutes = [
     children: [
       {
         path: "login",
-        component: () => import("@/views/Login.vue"),
+        component: () => import("@/views/Auth/Login.vue"),
         meta: {
           title: "登录",
         },
       },
       {
         path: "register",
-        component: () => import("@/views/Register.vue"),
+        component: () => import("@/views/Auth/Register.vue"),
         meta: {
           title: "注册",
+        },
+      },
+    ],
+  },
+];
+
+// 前台路由配置
+const frontendRoutes = [
+  {
+    path: "/",
+    component: FrontendLayout,
+    children: [
+      {
+        path: "",
+        component: () => import("@/views/Frontend/Home.vue"),
+        meta: {
+          title: "首页",
+        },
+      },
+      {
+        path: "consultations",
+        component: () => import("@/views/Frontend/Consultations.vue"),
+        meta: {
+          title: "咨询管理",
+        },
+      },
+      {
+        path: "/emotion-diary",
+        component: () => import("@/views/Frontend/EmotionDiary.vue"),
+        meta: {
+          title: "情绪日志",
+        },
+      },
+      {
+        path: "/knowledge",
+        component: () => import("@/views/Frontend/Knowledge.vue"),
+        meta: {
+          title: "知识文章",
         },
       },
     ],
@@ -68,7 +107,7 @@ const backendRoutes = [
 // 创建路由实例
 const router = createRouter({
   history: createWebHistory(),
-  routes: backendRoutes,
+  routes: [...backendRoutes, ...frontendRoutes],
 });
 
 router.beforeEach((to, from, next) => {
