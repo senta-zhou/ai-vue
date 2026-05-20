@@ -33,7 +33,7 @@
           </div>
         </div>
         <div class="header-right">
-          <el-button circle @click="createFrontendSession" title="新建对话">
+          <el-button circle @click="createNewFrontendSession" title="新建对话">
             <el-icon><Plus /></el-icon>
           </el-button>
         </div>
@@ -56,21 +56,68 @@
           </div>
         </div>
       </div>
+
+      <!-- 消息输入区域 -->
+      <div class="chat-input">
+        <div class="input-container">
+          <el-input
+            v-model="userMessage"
+            placeholder="请输入您想输入的内容..."
+            type="textarea"
+            rows="3"
+            :disabled="isAiTyping"
+            @keydown.enter="handleKeyDown"
+            class="message-input"
+          />
+        </div>
+        <el-button type="primary" class="send-btn" @click="sendMessage">
+          <el-icon><Promotion /></el-icon>
+        </el-button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-  import { ref } from "vue";
+  import { ref, onMounted } from "vue";
+  import { startSession } from "@/api/frontend";
 
   const iconUrl = new URL("@/assets/images/robot-fill.png", import.meta.url)
     .href;
   const iconUrl1 = new URL("@/assets/images/like.png", import.meta.url).href;
 
-  const createFrontendSession = () => {};
+  // 创建新对话
+  const createNewFrontendSession = () => {
+    // 创建一个新的会话对象
+    const newSession = {
+      sessionId: `temp_${Date.now()}`,
+      status: "TEMP",
+      sessionTitle: "newSession",
+    };
+    // 设置当前会话为新会话
+    currentSession.value = newSession;
+  };
+
+  // 定义当前会话对象
+  const currentSession = ref(null);
 
   // 定义对话信息
   const message = ref([]);
+  // 定义用户输入的消息
+  const userMessage = ref("");
+  // 定义AI是否正在输入中
+  const isAiTyping = ref(false);
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+    }
+  };
+
+  onMounted(() => {
+    // 页面首次加载时创建一个新的对话
+    createNewFrontendSession();
+  });
 </script>
 
 <style lang="scss" scoped>
