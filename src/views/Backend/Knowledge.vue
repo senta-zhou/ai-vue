@@ -6,7 +6,7 @@
       </template>
     </PageHead>
     <TableSearch :formItem="formItem" @search="handleSearch"></TableSearch>
-    <el-table :data="tableData" style="width: 100% margin-top=25px">
+    <el-table :data="tableData" style="width: 100%; margin-top: 25px">
       <el-table-column label="文章标题" width="170" fixed="left">
         <template #default="scope">
           <div style="display: flex; align-items: center">
@@ -80,162 +80,163 @@
   </div>
 </template>
 <script setup>
-  import { ref, onMounted, reactive } from "vue";
-  import {
-    CategoryTree,
-    ArticlePage,
-    getArticleDetail,
-    ChangeArticleStatus,
-    DeleteArticle,
-  } from "@/api/admin";
-  import PageHead from "@/components/PageHead.vue";
-  import TableSearch from "@/components/TableSearch.vue";
-  import ArticleDialog from "@/components/ArticleDialog.vue";
-  import { ElMessageBox, ElMessage } from "element-plus";
+import { ref, onMounted, reactive } from "vue";
+import {
+  CategoryTree,
+  ArticlePage,
+  getArticleDetail,
+  ChangeArticleStatus,
+  DeleteArticle,
+} from "@/api/admin";
+import PageHead from "@/components/Backend/PageHead.vue";
+import TableSearch from "@/components/Backend/TableSearch.vue";
+import ArticleDialog from "@/components/Backend/ArticleDialog.vue";
+import { ElMessageBox, ElMessage } from "element-plus";
 
-  const formItem = [
-    {
-      comb: "input",
-      prop: "title",
-      label: "文章标题",
-      placeholder: "请输入文章标题",
-    },
-    {
-      comb: "select",
-      prop: "category",
-      label: "分类",
-      placeholder: "请选择分类",
-    },
-    {
-      comb: "select",
-      prop: "status",
-      label: "状态",
-      placeholder: "请选择状态",
-      options: [
-        {
-          label: "草稿",
-          value: 0,
-        },
-        {
-          label: "已发布",
-          value: 1,
-        },
-        {
-          label: "已下线",
-          value: 2,
-        },
-      ],
-    },
-  ];
+const formItem = [
+  {
+    comb: "input",
+    prop: "title",
+    label: "文章标题",
+    placeholder: "请输入文章标题",
+  },
+  {
+    comb: "select",
+    prop: "category",
+    label: "分类",
+    placeholder: "请选择分类",
+  },
+  {
+    comb: "select",
+    prop: "status",
+    label: "状态",
+    placeholder: "请选择状态",
+    options: [
+      {
+        label: "草稿",
+        value: 0,
+      },
+      {
+        label: "已发布",
+        value: 1,
+      },
+      {
+        label: "已下线",
+        value: 2,
+      },
+    ],
+  },
+];
 
-  // 分页数据
-  const pagination = reactive({
-    currentPage: 1,
-    size: 10,
-    total: 0,
-  });
+// 分页数据
+const pagination = reactive({
+  currentPage: 1,
+  size: 10,
+  total: 0,
+});
 
-  // 表格数据
-  const tableData = ref([]);
-  // 搜索文章
-  const handleSearch = async (formData) => {
-    const params = {
-      ...pagination,
-      ...formData,
+// 表格数据
+const tableData = ref([]);
+// 搜索文章
+const handleSearch = async (formData) => {
+  const params = {
+    ...pagination,
+    ...formData,
+  };
+  const { records, total } = await ArticlePage(params);
+  tableData.value = records;
+  pagination.total = total;
+};
+
+// 分页效果
+const handleChange = (page) => {
+  pagination.currentPage = page;
+  handleSearch();
+};
+
+// 分类映射
+const categoryMap = reactive({});
+// 分类选项
+const categoryOptions = ref([]);
+onMounted(async () => {
+  const res = await CategoryTree();
+  categoryOptions.value = res.map((item) => {
+    categoryMap[item.id] = item.categoryName;
+    return {
+      label: item.categoryName,
+      value: item.id,
     };
-    const { records, total } = await ArticlePage(params);
-    tableData.value = records;
-    pagination.total = total;
-  };
-
-  // 分页效果
-  const handleChange = (page) => {
-    pagination.currentPage = page;
-    handleSearch();
-  };
-
-  // 分类映射
-  const categoryMap = reactive({});
-  // 分类选项
-  const categoryOptions = ref([]);
-  onMounted(async () => {
-    const res = await CategoryTree();
-    categoryOptions.value = res.map((item) => {
-      categoryMap[item.id] = item.categoryName;
-      return {
-        label: item.categoryName,
-        value: item.id,
-      };
-    });
-    formItem[1].options = categoryOptions.value;
-
-    // 获取列表
-    handleSearch();
   });
+  formItem[1].options = categoryOptions.value;
 
-  // 新增文章弹窗
-  const dialogVisible = ref(false);
-  // 当前文章
-  const currentArticle = ref(null);
-  // 编辑文章
-  const handleEdit = (row) => {
-    if (!row.id) {
-      // 新增文章
-      currentArticle.value = {};
+  // 获取列表
+  handleSearch();
+});
+
+// 新增文章弹窗
+const dialogVisible = ref(false);
+// 当前文章
+const currentArticle = ref(null);
+// 编辑文章
+const handleEdit = (row) => {
+  if (!row.id) {
+    // 新增文章
+    currentArticle.value = {};
+    dialogVisible.value = true;
+  } else {
+    // 编辑文章
+    getArticleDetail(row.id).then((res) => {
+      currentArticle.value = res;
       dialogVisible.value = true;
-    } else {
-      // 编辑文章
-      getArticleDetail(row.id).then((res) => {
-        currentArticle.value = res;
-        dialogVisible.value = true;
-      });
-    }
-  };
-  // 新增文章成功
-  const handleSuccess = () => {
-    dialogVisible.value = false;
-    handleSearch();
-  };
-
-  // 发布文章
-  const handlePublish = (row) => {
-    ElMessageBox.confirm(`确认发布文章${row.title}吗？`, "发布确认", {
-      confirmButtonText: "确定",
-      cancelButtonText: "取消",
-      type: "warning",
-    }).then(() => {
-      ChangeArticleStatus(row.id, { status: 1 }).then(() => {
-        ElMessage.success("发布成功");
-        handleSearch();
-      });
     });
-  };
+  }
+};
+// 新增文章成功
+const handleSuccess = () => {
+  dialogVisible.value = false;
+  ElMessage.success("操作成功");
+  handleSearch();
+};
 
-  // 下线文章
-  const handleUnpublish = (row) => {
-    ElMessageBox.confirm(`确认下线文章${row.title}吗？`, "下线确认", {
-      confirmButtonText: "确定",
-      cancelButtonText: "取消",
-      type: "warning",
-    }).then(() => {
-      ChangeArticleStatus(row.id, { status: 2 }).then(() => {
-        ElMessage.success("下线成功");
-        handleSearch();
-      });
+// 发布文章
+const handlePublish = (row) => {
+  ElMessageBox.confirm(`确认发布文章${row.title}吗？`, "发布确认", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "warning",
+  }).then(() => {
+    ChangeArticleStatus(row.id, { status: 1 }).then(() => {
+      ElMessage.success("发布成功");
+      handleSearch();
     });
-  };
+  });
+};
 
-  // 删除文章
-  const handleDelete = (row) => {
-    ElMessageBox.confirm(`确认删除文章${row.title}吗？`, "删除确认", {
-      confirmButtonText: "确定",
-      cancelButtonText: "取消",
-      type: "danger",
-    }).then(() => {
-      DeleteArticle(row.id).then(() => {
-        ElMessage.success("删除成功");
-        handleSearch();
-      });
+// 下线文章
+const handleUnpublish = (row) => {
+  ElMessageBox.confirm(`确认下线文章${row.title}吗？`, "下线确认", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "warning",
+  }).then(() => {
+    ChangeArticleStatus(row.id, { status: 2 }).then(() => {
+      ElMessage.success("下线成功");
+      handleSearch();
     });
-  };
+  });
+};
+
+// 删除文章
+const handleDelete = (row) => {
+  ElMessageBox.confirm(`确认删除文章${row.title}吗？`, "删除确认", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "danger",
+  }).then(() => {
+    DeleteArticle(row.id).then(() => {
+      ElMessage.success("删除成功");
+      handleSearch();
+    });
+  });
+};
 </script>

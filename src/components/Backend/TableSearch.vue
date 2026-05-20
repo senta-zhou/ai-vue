@@ -31,43 +31,43 @@
 </template>
 
 <script setup>
-  import { ref, computed } from "vue";
+import { ref, computed, reactive } from "vue";
 
-  const props = defineProps({
-    formItem: {
-      type: Array,
-      default: () => [],
-    },
+const props = defineProps({
+  formItem: {
+    type: Array,
+    default: () => [],
+  },
+});
+
+const emit = defineEmits(["search"]);
+
+const formItemAttrs = computed(() => {
+  const { formItem } = props;
+  formItem.forEach((item) => {
+    // 一行24个网格布局，24/设置的列数就是一行几个
+    item.col = { xs: 24, sm: 12, md: 8, lg: 6, xl: 6 };
   });
+  return formItem;
+});
 
-  const emit = defineEmits(["search"]);
+const ruleFormRef = ref(null);
 
-  const formItemAttrs = computed(() => {
-    const { formItem } = props;
-    formItem.forEach((item) => {
-      // 一行24个网格布局，24/设置的列数就是一行几个
-      item.col = { xs: 24, sm: 12, md: 8, lg: 6, xl: 6 };
-    });
-    return formItem;
-  });
-
-  const ruleFormRef = ref(null);
-
-  // 表单数据
-  const formData = ref({});
-  // 根据comb判断是否是input或select
-  const isComb = (comb) => {
-    // 映射map
-    return { input: "el-input", select: "el-select" }[comb];
-  };
-  // 查询
-  const handleSearch = () => {
-    emit("search", formData);
-  };
-  // 重置
-  const handleReset = (formEL) => {
-    if (!formEL) return;
-    formEL.resetFields();
-    handleSearch();
-  };
+// 表单数据
+const formData = reactive({});
+// 根据comb判断是否是input或select
+const isComb = (comb) => {
+  // 映射map
+  return { input: "el-input", select: "el-select" }[comb];
+};
+// 查询
+const handleSearch = () => {
+  emit("search", formData);
+};
+// 重置
+const handleReset = (formEL) => {
+  if (!formEL) return;
+  formEL.resetFields();
+  handleSearch();
+};
 </script>

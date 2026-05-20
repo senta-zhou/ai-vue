@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
-import BackendLayout from "@/components/BackendLayout.vue";
-import FrontendLayout from "@/components/FrontendLayout.vue";
-import AuthLayout from "@/components/AuthLayout.vue";
+import BackendLayout from "@/components/Backend/BackendLayout.vue";
+import FrontendLayout from "@/components/Frontend/FrontendLayout.vue";
+import AuthLayout from "@/components/Auth/AuthLayout.vue";
 
 // 后台路由配置
 const backendRoutes = [
