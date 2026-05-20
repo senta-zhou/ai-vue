@@ -17,6 +17,50 @@
           正在服务中
         </div>
       </div>
+
+      <!-- 会话列表 -->
+      <div class="session-history">
+        <h4 class="session-title">会话列表</h4>
+        <div class="session-list">
+          <div
+            v-for="session in sessionList"
+            :key="session.id"
+            class="session-item"
+            @click="selectSession(session)"
+          >
+            <div class="session-info">
+              <div class="session-title">
+                <span>{{ session.sessionTitle }}</span>
+                <div class="session-meta">
+                  <span>{{ session.startAt }}</span>
+                </div>
+                <div class="session-preview">
+                  <span>{{ session.lastMessageContent }}</span>
+                </div>
+                <div class="session-stats">
+                  <span>
+                    <el-icon><ChatRound /></el-icon>
+                    {{ session.messageCount || 0 }}
+                  </span>
+                  <span>
+                    <el-icon><Clock /></el-icon>
+                    {{ session.durationMinutes || 0 }} 分钟
+                  </span>
+                </div>
+              </div>
+              <div class="session-actions">
+                <el-button
+                  text
+                  type="danger"
+                  @click="handleDeleteSession(session.id)"
+                >
+                  <el-icon><DeleteFilled /></el-icon>
+                </el-button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- 聊天主区域 -->
@@ -68,6 +112,7 @@
             :disabled="isAiTyping"
             @keydown.enter="handleKeyDown"
             class="message-input"
+            resize="none"
           />
         </div>
         <el-button type="primary" class="send-btn" @click="sendMessage">
@@ -80,8 +125,9 @@
 
 <script setup>
   import { ref, onMounted } from "vue";
-  import { startSession } from "@/api/frontend";
-  import { ElMessage } from "element-plus";
+  import { startSession, getSessionList, deleteSession } from "@/api/frontend";
+  import { ElMessage, ElMessageBox } from "element-plus";
+  import { ChatRound, DeleteFilled } from "@element-plus/icons-vue";
 
   const iconUrl = new URL("@/assets/images/robot-fill.png", import.meta.url)
     .href;
@@ -104,6 +150,8 @@
 
   // 定义对话信息
   const message = ref([]);
+  // 定义会话列表
+  const sessionList = ref([]);
   // 定义用户输入的消息
   const userMessage = ref("");
   // 定义AI是否正在输入中
@@ -157,12 +205,48 @@
       } else {
         currentSession.value = sessionData;
       }
+      // 更新会话列表
+      getSessionPage();
     });
   };
 
+  // 获取会话列表
+  const getSessionPage = () => {
+    getSessionList({
+      pageNum: 1,
+      pageSize: 10,
+    }).then((res) => {
+      sessionList.value = res.records || [];
+    });
+  };
+
+  // 选择会话
+  const selectSession = (session) => {
+    currentSession.value = session;
+  };
+
+  // 删除会话
+  const handleDeleteSession = (sessionId) => {
+    deleteSession(sessionId).then((res) => {
+      ElMessageBox.confirm("确认删除吗？", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      }).then(() => {
+        ElMessage.success("删除成功");
+        // 删除成功后，刷新会话列表
+        getSessionPage();
+      });
+    });
+  };
+
+  // 页面首次加载时创建一个新的对话
   onMounted(() => {
     // 页面首次加载时创建一个新的对话
     createNewFrontendSession();
+
+    // 获取会话列表
+    getSessionPage();
   });
 </script>
 
@@ -317,8 +401,8 @@
               }
               .session-actions {
                 position: absolute;
-                top: 10px;
-                right: 12px;
+                bottom: 15px;
+                right: 10px;
               }
             }
           }
