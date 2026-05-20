@@ -64,7 +64,7 @@
             v-model="userMessage"
             placeholder="请输入您想输入的内容..."
             type="textarea"
-            rows="3"
+            :rows="3"
             :disabled="isAiTyping"
             @keydown.enter="handleKeyDown"
             class="message-input"
@@ -81,6 +81,7 @@
 <script setup>
   import { ref, onMounted } from "vue";
   import { startSession } from "@/api/frontend";
+  import { ElMessage } from "element-plus";
 
   const iconUrl = new URL("@/assets/images/robot-fill.png", import.meta.url)
     .href;
@@ -92,7 +93,7 @@
     const newSession = {
       sessionId: `temp_${Date.now()}`,
       status: "TEMP",
-      sessionTitle: "newSession",
+      sessionTitle: "新对话",
     };
     // 设置当前会话为新会话
     currentSession.value = newSession;
@@ -108,10 +109,55 @@
   // 定义AI是否正在输入中
   const isAiTyping = ref(false);
 
+  // 处理键盘事件
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
     }
+  };
+
+  // 用户发送消息
+  const sendMessage = () => {
+    if (!userMessage.value.trim()) return;
+    if (isAiTyping.value) {
+      ElMessage.error("请稍后再发送");
+      return;
+    }
+    const message = userMessage.value.trim();
+    userMessage.value == "";
+
+    // 如果没有对话或者是临时对话，则创建一个新的对话
+    if (!currentSession.value || currentSession.value.status === "TEMP") {
+      startNewSession(message);
+    }
+  };
+  const startNewSession = (message) => {
+    // 构建会话参数
+    const sessionParams = {
+      initialMessage: message,
+    };
+    if (currentSession.value.sessionTitle === "新对话") {
+      sessionParams.sessionTitle = `宁渡AI助手 - ${new Date().toLocaleString()}`;
+    } else {
+      // 如果不是新对话，使用当前会话标题
+      sessionParams.sessionTitle = currentSession.value.sessionTitle;
+    }
+    // 开始会话
+    startSession(sessionParams).then((res) => {
+      //  将后端数据转化为前端会话格式
+      const sessionData = {
+        sessionId: res.sessionId,
+        status: res.status,
+        sessionTitle: sessionParams.sessionTitle,
+      };
+      // 如果是临时会话则更新数据，覆盖当前会话数据,更新为正式对话
+      if (currentSession.value && currentSession.value.status === "TEMP") {
+        // 更新当前会话数据
+        Object.assign(currentSession.value, sessionData);
+      } else {
+        currentSession.value = sessionData;
+      }
+    });
   };
 
   onMounted(() => {
