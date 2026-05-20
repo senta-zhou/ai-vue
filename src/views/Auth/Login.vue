@@ -2,7 +2,7 @@
   <div class="container">
     <!-- 登录标题 -->
     <div class="title">
-      <div class="back-home">
+      <div @click="router.push('/')" class="back-home">
         <el-icon><Back /></el-icon>
         <span>返回首页</span>
       </div>
@@ -44,7 +44,7 @@
         >
       </el-form>
       <div class="footer">
-        <p>还没有账号？<router-link to="/auth/register">去注册</router-link></p>
+        <p>还没有账号,<router-link to="/auth/register">去注册</router-link></p>
       </div>
     </div>
   </div>
@@ -110,7 +110,10 @@
     width: 384px;
     .title {
       .back-home {
-        margin-bottom: 60px;
+        display: flex;
+        align-items: center;
+        margin-bottom: 90px;
+        cursor: pointer;
       }
       .title-text {
         text-align: center;
