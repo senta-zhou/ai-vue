@@ -119,6 +119,41 @@
               style="width: 18px; height: 18px"
             />
           </div>
+          <div class="message-content">
+            <div class="message-bubble">
+              <!-- ai正在思考中 -->
+              <div
+                v-if="msg.senderType === 2 && isAiTyping && !msg.content"
+                class="typing-indicator"
+              >
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+              </div>
+              <!-- ai错误信息 -->
+              <div v-else-if="msg.isError" class="error-message">
+                {{ msg.content }}
+              </div>
+              <!-- ai正常回复 -->
+              <MarkdownRenderer
+                v-else-if="msg.senderType === 2 && !msg.isError"
+                :markdown="msg.content"
+                :is-ai-message="true"
+              />
+              <!-- 用户消息 -->
+              <p
+                v-else-if="msg.content"
+                v-html="formatMsgContent(msg.content)"
+              ></p>
+            </div>
+            <div class="message-time">
+              {{
+                msg.senderType === 2 && isAiTyping
+                  ? "正在输入中..."
+                  : msg.createdAt
+              }}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -154,6 +189,7 @@
   } from "@/api/frontend";
   import { ElMessage, ElMessageBox } from "element-plus";
   import { ChatRound, DeleteFilled } from "@element-plus/icons-vue";
+  import MarkdownRenderer from "@/components/Frontend/MarkdownRenderer.vue";
 
   const iconUrl = new URL("@/assets/images/robot-fill.png", import.meta.url)
     .href;
@@ -268,6 +304,11 @@
         getSessionPage();
       });
     });
+  };
+
+  // 处理简单换行逻辑
+  const formatMsgContent = (content) => {
+    return content.replace(/\n/g, "<br>");
   };
 
   // 页面首次加载时创建一个新的对话
