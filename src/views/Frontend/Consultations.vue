@@ -26,7 +26,7 @@
             v-for="session in sessionList"
             :key="session.id"
             class="session-item"
-            @click="selectSession(session)"
+            @click="handleSelectSession(session)"
           >
             <div class="session-info">
               <div class="session-title">
@@ -99,6 +99,27 @@
             <div class="message-time">刚刚</div>
           </div>
         </div>
+
+        <!-- 对话列表 -->
+        <div
+          class="message-item"
+          :class="msg.senderType === 1 ? 'user-message' : 'ai-message'"
+          v-for="msg in message"
+          :key="msg.id"
+        >
+          <div class="message-avatar">
+            <el-image
+              v-if="msg.senderType === 1"
+              :src="iconUrl2"
+              style="width: 18px; height: 18px"
+            />
+            <el-image
+              v-if="msg.senderType === 2"
+              :src="iconUrl"
+              style="width: 18px; height: 18px"
+            />
+          </div>
+        </div>
       </div>
 
       <!-- 消息输入区域 -->
@@ -125,14 +146,19 @@
 
 <script setup>
   import { ref, onMounted } from "vue";
-  import { startSession, getSessionList, deleteSession } from "@/api/frontend";
+  import {
+    startSession,
+    getSessionList,
+    deleteSession,
+    getSessionDetail,
+  } from "@/api/frontend";
   import { ElMessage, ElMessageBox } from "element-plus";
   import { ChatRound, DeleteFilled } from "@element-plus/icons-vue";
 
   const iconUrl = new URL("@/assets/images/robot-fill.png", import.meta.url)
     .href;
   const iconUrl1 = new URL("@/assets/images/like.png", import.meta.url).href;
-
+  const iconUrl2 = new URL("@/assets/images/users.png", import.meta.url).href;
   // 创建新对话
   const createNewFrontendSession = () => {
     // 创建一个新的会话对象
@@ -221,18 +247,22 @@
   };
 
   // 选择会话
-  const selectSession = (session) => {
-    currentSession.value = session;
+  const handleSelectSession = (session) => {
+    getSessionDetail(session.id).then((res) => {
+      console.log(res);
+      message.value = res || [];
+    });
   };
 
   // 删除会话
   const handleDeleteSession = (sessionId) => {
-    deleteSession(sessionId).then((res) => {
-      ElMessageBox.confirm("确认删除吗？", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
-      }).then(() => {
+    console.log(sessionId);
+    ElMessageBox.confirm("确认删除吗？", "提示", {
+      confirmButtonText: "确定",
+      cancelButtonText: "取消",
+      type: "warning",
+    }).then(() => {
+      deleteSession(sessionId).then((res) => {
         ElMessage.success("删除成功");
         // 删除成功后，刷新会话列表
         getSessionPage();

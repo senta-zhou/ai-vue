@@ -17,5 +17,10 @@ export const getSessionList = (params) => {
 
 // 删除会话
 export const deleteSession = (sessionId) => {
-  return request.delete(`/psychological-chat/session/${sessionId}`);
+  return request.delete(`/psychological-chat/sessions/${sessionId}`);
+};
+
+// 获取会话详情
+export const getSessionDetail = (sessionId) => {
+  return request.get(`/psychological-chat/sessions/${sessionId}/messages`);
 };
