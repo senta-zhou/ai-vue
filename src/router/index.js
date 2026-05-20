@@ -44,6 +44,7 @@ const backendRoutes = [
       },
     ],
   },
+  // 认证路由配置
   {
     path: "/auth",
     component: AuthLayout,
