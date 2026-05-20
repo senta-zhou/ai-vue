@@ -114,7 +114,7 @@
   const submitFormRef = ref(null);
   const submitForm = async (FormEl) => {
     if (!FormEl) return;
-    FormEl.validate(async (valid) => {
+    FormEl.validate((valid) => {
       if (!valid) return;
       register(formData).then(({ data }) => {
         console.log(data);

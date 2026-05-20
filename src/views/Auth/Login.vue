@@ -92,8 +92,11 @@
             // 根据用户角色决定跳转路径
             if (data.userInfo.userType === 2) {
               router.push("/back/dashboard");
+              ElMessage.success("登录成功");
+            } else {
+              router.push("/");
+              ElMessage.success("登录成功");
             }
-            console.log("登录成功");
           })
           .catch((error) => {
             ElMessage.error(

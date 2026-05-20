@@ -126,6 +126,11 @@ router.beforeEach((to, from, next) => {
       }
     } else if (userInfo.userType == 1) {
       // 前台页面
+      if (to.path.startsWith("/back") || to.path.startsWith("/auth")) {
+        next("/");
+      } else {
+        next();
+      }
     }
   } else {
     if (to.path.startsWith("/back")) {
