@@ -54,7 +54,39 @@
             <div class="suggestion-icon">💝</div>
             <div class="suggestion-content">
               <div class="suggestion-title">给你的小建议</div>
-              <div class="suggestion-text">{{ currentEmotion.suggestion }}</div>
+              <div class="suggestion-text">
+                {{ currentEmotion.suggestion }}
+              </div>
+            </div>
+          </div>
+          <!-- 治愈行动 -->
+          <div
+            class="healing-actions"
+            v-if="currentEmotion.improvementSuggestions.length > 0"
+          >
+            <div class="actions-title">治愈小行动</div>
+            <div class="actions-list">
+              <div
+                class="action-item"
+                v-for="action in currentEmotion.improvementSuggestions"
+                :key="action"
+              >
+                <div class="action-icon">✨</div>
+                <div class="action-text">{{ action }}</div>
+              </div>
+            </div>
+          </div>
+          <!-- 风险提醒 -->
+          <div
+            class="risk-notice"
+            v-if="currentEmotion.isNegative && currentEmotion.riskLevel > 1"
+          >
+            <div class="notice-icon">🤗</div>
+            <div class="notice-content">
+              <div class="notice-title">温馨提示</div>
+              <div class="notice-text">
+                {{ currentEmotion.riskDescription }}
+              </div>
             </div>
           </div>
         </div>
@@ -238,6 +270,7 @@
     getSessionList,
     deleteSession,
     getSessionDetail,
+    getSessionEmotion,
   } from "@/api/frontend";
   import { ElMessage, ElMessageBox } from "element-plus";
   import { ChatRound, DeleteFilled } from "@element-plus/icons-vue";
@@ -280,7 +313,20 @@
     isNegative: false,
     riskLevel: 0,
     suggestion: "情绪状态平稳",
+    improvementSuggestions: [],
   });
+
+  const loadSessionEmotion = (sessionId) => {
+    // 确保sessionId格式正确
+    const id = sessionId.toString().startsWith("session_")
+      ? sessionId
+      : `session_${sessionId}`;
+    getSessionEmotion(id).then((res) => {
+      console.log(res);
+
+      currentEmotion.value = res || {};
+    });
+  };
 
   const getIntensityClass = (score) => {
     if (score >= 61) return 3;
@@ -429,6 +475,8 @@
         if (eventName === "done") {
           isAiTyping.value = false;
           ctrl.abort();
+          // 开始情绪分析
+          loadSessionEmotion(currentSession.value.sessionId);
           return;
         }
         const payload = JSON.parse(raw);
@@ -445,6 +493,7 @@
       },
       onclose: () => {
         // 开始情绪分析
+        loadSessionEmotion(currentSession.value.sessionId);
       },
     });
   };
@@ -472,9 +521,9 @@
   // 选择会话
   const handleSelectSession = (session) => {
     getSessionDetail(session.id).then((res) => {
-      console.log(res);
       messages.value = res || [];
     });
+    loadSessionEmotion(session.id);
     // 更新当前会话
     const sessionData = {
       sessionId: "session_" + session.id,
