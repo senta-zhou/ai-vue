@@ -29,3 +29,8 @@ export const getSessionDetail = (sessionId) => {
 export const getSessionEmotion = (sessionId) => {
   return request.get(`/psychological-chat/session/${sessionId}/emotion`);
 };
+
+// 提交情绪日记
+export const addEmotionDiary = (data) => {
+  return request.post("/emotion-diary", data);
+};
