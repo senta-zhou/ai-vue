@@ -29,7 +29,12 @@
       </div>
       <!-- 右侧文章列表 -->
       <div class="article-list">
-        <div v-for="item in articleList" :key="item.id" class="article-item">
+        <div
+          v-for="item in articleList"
+          :key="item.id"
+          class="article-item"
+          @click="articleDetail(item.id)"
+        >
           <el-image
             :src="getImage(item.coverImage)"
             alt="article"
@@ -77,6 +82,9 @@
   import { getRecommendList } from "@/api/frontend";
   import { Histogram } from "@element-plus/icons-vue";
   import { dayjs } from "element-plus";
+  import { useRouter } from "vue-router";
+
+  const router = useRouter();
 
   const iconUrl = new URL("@/assets/images/book.png", import.meta.url).href;
 
@@ -117,6 +125,11 @@
   const handleChange = (val) => {
     pagination.currentPage = val;
     getPageList();
+  };
+
+  // 文章详情
+  const articleDetail = (id) => {
+    router.push(`/knowledge/detail/${id}`);
   };
 
   onMounted(() => {

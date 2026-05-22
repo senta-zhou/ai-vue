@@ -39,3 +39,8 @@ export const addEmotionDiary = (data) => {
 export const getRecommendList = (params) => {
   return request.get("/knowledge/article/page", { params });
 };
+
+// 获取知识文章详情
+export const getKnowledgeDetail = (id) => {
+  return request.get(`/knowledge/article/${id}`);
+};

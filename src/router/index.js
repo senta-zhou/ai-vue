@@ -101,6 +101,15 @@ const frontendRoutes = [
           title: "知识文章",
         },
       },
+      {
+        path: "/knowledge/detail/:id",
+        component: () => import("@/views/Frontend/KnowledgeDetail.vue"),
+        meta: {
+          title: "知识文章详情",
+          name: "KnowledgeDetail",
+        },
+        props: true,
+      },
     ],
   },
 ];
