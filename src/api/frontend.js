@@ -34,3 +34,8 @@ export const getSessionEmotion = (sessionId) => {
 export const addEmotionDiary = (data) => {
   return request.post("/emotion-diary", data);
 };
+
+// 获取推荐文章列表
+export const getRecommendList = (params) => {
+  return request.get("/knowledge/article/page", { params });
+};
