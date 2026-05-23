@@ -198,270 +198,272 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from "vue";
-import pageHead from "@/components/Backend/PageHead.vue";
-import TableSearch from "@/components/Backend/TableSearch.vue";
-import { getEmotionDiaryPage, deleteEmotionDiary } from "@/api/admin";
-import { ElMessage, ElMessageBox } from "element-plus";
+  import { ref, reactive, onMounted } from "vue";
+  import pageHead from "@/components/Backend/PageHead.vue";
+  import TableSearch from "@/components/Backend/TableSearch.vue";
+  import { getEmotionDiaryPage, deleteEmotionDiary } from "@/api/admin";
+  import { ElMessage, ElMessageBox } from "element-plus";
 
-const getEmotionTagType = (emotion) => {
-  const emotionTypes = {
-    快乐: "success",
-    平静: "info",
-    兴奋: "warning",
-    愤怒: "danger",
-    悲伤: "info",
-    焦虑: "warning",
+  const getEmotionTagType = (emotion) => {
+    const emotionTypes = {
+      快乐: "success",
+      平静: "info",
+      兴奋: "warning",
+      愤怒: "danger",
+      悲伤: "info",
+      焦虑: "warning",
+    };
+    return emotionTypes[emotion] || "info";
   };
-  return emotionTypes[emotion] || "info";
-};
 
-const getAiEmotionTagType = (emotion) => {
-  const emotionTagMap = {
-    快乐: "success",
-    平静: "success",
-    兴奋: "warning",
-    满足: "success",
-    愤怒: "danger",
-    悲伤: "info",
-    焦虑: "warning",
-    恐惧: "danger",
-    沮丧: "info",
-    压力: "warning",
+  const getAiEmotionTagType = (emotion) => {
+    const emotionTagMap = {
+      快乐: "success",
+      平静: "success",
+      兴奋: "warning",
+      满足: "success",
+      愤怒: "danger",
+      悲伤: "info",
+      焦虑: "warning",
+      恐惧: "danger",
+      沮丧: "info",
+      压力: "warning",
+    };
+    return emotionTagMap[emotion] || "info";
   };
-  return emotionTagMap[emotion] || "info";
-};
 
-const getEmotionScoreColor = (score) => {
-  if (score >= 80) return "#f56c6c";
-  if (score >= 60) return "#e6a23c";
-  if (score >= 40) return "#909399";
-  return "#67c23a";
-};
-
-const getRiskLevelTagType = (riskLevel) => {
-  const riskTagMap = {
-    0: "success",
-    1: "info",
-    2: "warning",
-    3: "danger",
+  const getEmotionScoreColor = (score) => {
+    if (score >= 80) return "#f56c6c";
+    if (score >= 60) return "#e6a23c";
+    if (score >= 40) return "#909399";
+    return "#67c23a";
   };
-  return riskTagMap[riskLevel] || "info";
-};
 
-const getRiskLevelText = (riskLevel) => {
-  const riskTextMap = {
-    0: "正常",
-    1: "关注",
-    2: "预警",
-    3: "危机",
+  const getRiskLevelTagType = (riskLevel) => {
+    const riskTagMap = {
+      0: "success",
+      1: "info",
+      2: "warning",
+      3: "danger",
+    };
+    return riskTagMap[riskLevel] || "info";
   };
-  return riskTextMap[riskLevel] || "未知风险等级";
-};
 
-const formItem = [
-  {
-    comb: "input",
-    label: "用户ID",
-    prop: "userId",
-    placeholder: "请输入用户ID",
-  },
-  {
-    comb: "select",
-    label: "情绪评分",
-    prop: "moodScore",
-    placeholder: "请选择情绪评分",
-    options: [
-      {
-        label: "低分(1-3)",
-        value: "1-3",
-      },
-      {
-        label: "中分(4-6)",
-        value: "4-6",
-      },
-      {
-        label: "高分(7-10)",
-        value: "7-10",
-      },
-    ],
-  },
-];
-
-// 表格数据
-const tableData = ref([]);
-// 分页数据
-const pagination = reactive({
-  currentPage: 1,
-  size: 10,
-  total: 0,
-});
-
-// 分页效果
-const handleChange = (page) => {
-  pagination.currentPage = page;
-  handleSearch();
-};
-
-// 获取情绪日记分页列表
-const handleSearch = async (formData = {}) => {
-  const params = {
-    ...pagination,
-    ...formData,
+  const getRiskLevelText = (riskLevel) => {
+    const riskTextMap = {
+      0: "正常",
+      1: "关注",
+      2: "预警",
+      3: "危机",
+    };
+    return riskTextMap[riskLevel] || "未知风险等级";
   };
-  const { records, total } = await getEmotionDiaryPage(params);
-  tableData.value = records;
-  pagination.total = total;
-};
 
-// 详情
-const detailDialogVisible = ref(false);
-// 当前详情
-const currentDetail = ref(null);
-// AI情绪分析结果
-const aiData = ref(null);
-// 查看详情
-const viewSessionDetail = (row) => {
-  currentDetail.value = row;
-  if (row.aiEmotionAnalysis) {
-    aiData.value = JSON.parse(row.aiEmotionAnalysis);
-    console.log(aiData.value);
-  } else {
-    aiData.value = {};
-  }
-  detailDialogVisible.value = true;
-};
+  const formItem = [
+    {
+      comb: "input",
+      label: "用户ID",
+      prop: "userId",
+      placeholder: "请输入用户ID",
+    },
+    {
+      comb: "select",
+      label: "情绪评分",
+      prop: "moodScore",
+      placeholder: "请选择情绪评分",
+      options: [
+        {
+          label: "低分(1-3)",
+          value: "1-3",
+        },
+        {
+          label: "中分(4-6)",
+          value: "4-6",
+        },
+        {
+          label: "高分(7-10)",
+          value: "7-10",
+        },
+      ],
+    },
+  ];
 
-// 删除情绪日记
-const handleDelete = (row) => {
-  ElMessageBox.confirm(`确认删除情绪日记${row.id}吗？`, "删除确认", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
-    type: "danger",
-  }).then(() => {
-    deleteEmotionDiary(row.id).then(() => {
-      ElMessage.success("删除成功");
-      handleSearch();
-    });
+  // 表格数据
+  const tableData = ref([]);
+  // 分页数据
+  const pagination = reactive({
+    currentPage: 1,
+    size: 10,
+    total: 0,
   });
-};
 
-onMounted(() => {
-  handleSearch();
-});
+  // 分页效果
+  const handleChange = (page) => {
+    pagination.currentPage = page;
+    handleSearch();
+  };
+
+  // 获取情绪日记分页列表
+  const handleSearch = async (formData = {}) => {
+    const params = {
+      ...pagination,
+      ...formData,
+    };
+    const { records, total } = await getEmotionDiaryPage(params);
+    tableData.value = records;
+    pagination.total = total;
+  };
+
+  // 详情
+  const detailDialogVisible = ref(false);
+  // 当前详情
+  const currentDetail = ref(null);
+  // AI情绪分析结果
+  const aiData = ref(null);
+
+  // 查看详情
+  const viewSessionDetail = (row) => {
+    console.log(row);
+    currentDetail.value = row;
+    if (row.aiEmotionAnalysis) {
+      aiData.value = JSON.parse(row.aiEmotionAnalysis);
+      console.log(aiData.value);
+    } else {
+      aiData.value = {};
+    }
+    detailDialogVisible.value = true;
+  };
+
+  // 删除情绪日记
+  const handleDelete = (row) => {
+    ElMessageBox.confirm(`确认删除情绪日记${row.id}吗？`, "删除确认", {
+      confirmButtonText: "确定",
+      cancelButtonText: "取消",
+      type: "danger",
+    }).then(() => {
+      deleteEmotionDiary(row.id).then(() => {
+        ElMessage.success("删除成功");
+        handleSearch();
+      });
+    });
+  };
+
+  onMounted(() => {
+    handleSearch();
+  });
 </script>
 
 <style lang="scss" scoped>
-.detail-content {
-  .detail-section {
-    margin-bottom: 24px;
+  .detail-content {
+    .detail-section {
+      margin-bottom: 24px;
 
-    h4 {
-      margin: 0 0 16px 0;
-      color: #303133;
-      font-size: 16px;
+      h4 {
+        margin: 0 0 16px 0;
+        color: #303133;
+        font-size: 16px;
 
-      i {
-        margin-right: 8px;
-        color: #409eff;
-      }
-    }
-  }
-}
-
-// AI分析相关样式
-.ai-analysis-status {
-  .ai-status-tag {
-    margin-bottom: 4px;
-
-    i {
-      margin-right: 4px;
-    }
-  }
-
-  .ai-analysis-preview {
-    font-size: 11px;
-    color: #909399;
-    margin-top: 2px;
-  }
-}
-
-.ai-analysis-result {
-  .ai-keywords-section,
-  .ai-suggestion-section,
-  .ai-risk-section,
-  .ai-improvements-section {
-    margin-top: 16px;
-    padding: 12px;
-    background-color: #f8f9fa;
-    border-radius: 4px;
-
-    h5 {
-      margin: 0 0 8px 0;
-      color: #606266;
-      font-size: 14px;
-      font-weight: 600;
-
-      i {
-        margin-right: 6px;
-        color: #909399;
+        i {
+          margin-right: 8px;
+          color: #409eff;
+        }
       }
     }
   }
 
-  .keywords-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-
-    .keyword-tag {
-      background-color: #e1f3d8;
-      color: #67c23a;
-      border-color: #b3d8a4;
-    }
-  }
-
-  .suggestion-content,
-  .risk-content {
-    line-height: 1.6;
-    color: #606266;
-    background-color: white;
-    padding: 8px;
-    border-radius: 4px;
-    border: 1px solid #ebeef5;
-  }
-
-  .improvement-list {
-    margin: 0;
-    padding-left: 20px;
-
-    li {
+  // AI分析相关样式
+  .ai-analysis-status {
+    .ai-status-tag {
       margin-bottom: 4px;
-      color: #606266;
-      line-height: 1.5;
-    }
-  }
-
-  .ai-analysis-meta {
-    margin-top: 16px;
-    padding-top: 12px;
-    border-top: 1px solid #ebeef5;
-
-    .analysis-time {
-      margin: 0;
-      font-size: 12px;
-      color: #909399;
 
       i {
         margin-right: 4px;
       }
     }
-  }
 
-  .el-progress {
-    .el-progress__text {
-      font-size: 12px !important;
+    .ai-analysis-preview {
+      font-size: 11px;
+      color: #909399;
+      margin-top: 2px;
     }
   }
-}
+
+  .ai-analysis-result {
+    .ai-keywords-section,
+    .ai-suggestion-section,
+    .ai-risk-section,
+    .ai-improvements-section {
+      margin-top: 16px;
+      padding: 12px;
+      background-color: #f8f9fa;
+      border-radius: 4px;
+
+      h5 {
+        margin: 0 0 8px 0;
+        color: #606266;
+        font-size: 14px;
+        font-weight: 600;
+
+        i {
+          margin-right: 6px;
+          color: #909399;
+        }
+      }
+    }
+
+    .keywords-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+
+      .keyword-tag {
+        background-color: #e1f3d8;
+        color: #67c23a;
+        border-color: #b3d8a4;
+      }
+    }
+
+    .suggestion-content,
+    .risk-content {
+      line-height: 1.6;
+      color: #606266;
+      background-color: white;
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #ebeef5;
+    }
+
+    .improvement-list {
+      margin: 0;
+      padding-left: 20px;
+
+      li {
+        margin-bottom: 4px;
+        color: #606266;
+        line-height: 1.5;
+      }
+    }
+
+    .ai-analysis-meta {
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid #ebeef5;
+
+      .analysis-time {
+        margin: 0;
+        font-size: 12px;
+        color: #909399;
+
+        i {
+          margin-right: 4px;
+        }
+      }
+    }
+
+    .el-progress {
+      .el-progress__text {
+        font-size: 12px !important;
+      }
+    }
+  }
 </style>

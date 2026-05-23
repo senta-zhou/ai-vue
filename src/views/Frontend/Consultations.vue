@@ -354,6 +354,7 @@
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
+      sendMessage();
     }
   };
 
@@ -543,6 +544,11 @@
     }).then(() => {
       deleteSession(sessionId).then((res) => {
         ElMessage.success("删除成功");
+        // 如果删除的是当前选中的会话，则清空聊天记录并创建新对话
+        if (currentSession.value && currentSession.value.sessionId === `session_${sessionId}`) {
+          messages.value = [];
+          createNewFrontendSession();
+        }
         // 删除成功后，刷新会话列表
         getSessionPage();
       });
@@ -717,6 +723,20 @@
                 position: absolute;
                 bottom: 15px;
                 right: 10px;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease;
+                .el-button {
+                  padding: 4px 8px;
+                  font-size: 14px;
+                  border-radius: 4px;
+                }
+              }
+              &:hover {
+                .session-actions {
+                  opacity: 1;
+                  visibility: visible;
+                }
               }
             }
           }

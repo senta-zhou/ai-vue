@@ -3,7 +3,7 @@
     <el-menu
       :collapse="isCollapse"
       :collapse-transition="false"
-      default-active="2"
+      :default-active="activeMenu"
       class="menu-style"
     >
       <div class="brand">
@@ -27,13 +27,22 @@
 </template>
 
 <script setup>
-  import { useRouter } from "vue-router";
+  import { useRouter, useRoute } from "vue-router";
   import { useAdminStore } from "@/stores/admin";
   import { computed } from "vue";
 
   const adminStore = useAdminStore();
   const router = useRouter();
+  const route = useRoute();
+
   const isCollapse = computed(() => adminStore.isCollapse);
+
+  // 获取当前激活的菜单
+  const activeMenu = computed(() => {
+    const path = route.path;
+    const parts = path.split("/");
+    return parts[parts.length - 1] || "";
+  });
 
   const iconUrl = new URL("/src/assets/images/机器人.png", import.meta.url)
     .href;

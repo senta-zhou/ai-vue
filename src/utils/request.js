@@ -25,22 +25,30 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   (response) => {
     const { data } = response;
-    if (data.code === "200") {
-      return data.data;
+    // 同时支持字符串和数字类型的状态码
+    if (data.code === "200" || data.code === 200 || data.success === true) {
+      return data.data || data;
     } else {
-      if (data.code === "-1") {
-        ElMessage.error(data.msg || "登录过期，请重新登录");
-        localStorage.removeItem("token");
-        localStorage.removeItem("userInfo");
-        window.location.href = "/auth/login";
+      if (data.code === "-1" || data.code === -1) {
+        if (!response.config.url?.includes("/login")) {
+          ElMessage.error(data.msg || data.message || "登录过期，请重新登录");
+          localStorage.removeItem("token");
+          localStorage.removeItem("userInfo");
+          window.location.href = "/auth/login";
+        } else {
+          ElMessage.error(data.msg || data.message || "登录失败");
+        }
+      } else if (data.code === "500" || data.code === 500) {
+        ElMessage.error(data.msg || data.message || "系统错误");
       } else {
-        ElMessage.error(data.msg || "请求失败");
+        // 其他错误状态码，不清除token，只显示错误信息
+        ElMessage.error(data.msg || data.message || "请求失败");
       }
-      return Promise.reject(data);
+      return Promise.reject(data.msg || data.message || "请求失败");
     }
   },
   (error) => {
-    ElMessage.error("网络异常或请求失败");
+    ElMessage.error(error.message || "网络请求失败");
     return Promise.reject(error);
   },
 );

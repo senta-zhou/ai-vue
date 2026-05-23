@@ -18,6 +18,7 @@
             v-for="item in recommendList"
             :key="item.id"
             class="recommend-item"
+            @click="articleDetail(item.id)"
           >
             <h4 class="title">{{ item.title }}</h4>
             <p class="read-count">
@@ -97,7 +98,7 @@
   // 分页参数
   const pagination = reactive({
     currentPage: 1,
-    pageSize: 5,
+    size: 5,
     total: 0,
   });
 
@@ -138,10 +139,11 @@
       sortField: "readCount",
       sortDirection: "desc",
       currentPage: 1,
-      pageSize: 5,
+      size: 5,
     };
     getPageList();
     getRecommendList(params).then((res) => {
+      console.log(res);
       recommendList.value = res.records;
     });
   });

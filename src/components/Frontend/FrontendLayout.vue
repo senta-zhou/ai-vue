@@ -10,14 +10,29 @@
         <h1 class="brand-name">心理健康AI助手</h1>
       </div>
       <div class="nav-section">
-        <router-link to="/" class="nav-link">首页</router-link>
-        <router-link to="/consultations" class="nav-link" v-if="isLoggedIn"
+        <router-link to="/" class="nav-link" :class="{ active: isActive('/') }"
+          >首页</router-link
+        >
+        <router-link
+          to="/consultations"
+          class="nav-link"
+          :class="{ active: isActive('/consultations') }"
+          v-if="isLoggedIn"
           >AI咨询</router-link
         >
-        <router-link to="/emotion-diary" class="nav-link" v-if="isLoggedIn"
+        <router-link
+          to="/emotion-diary"
+          class="nav-link"
+          :class="{ active: isActive('/emotion-diary') }"
+          v-if="isLoggedIn"
           >情绪日记</router-link
         >
-        <router-link to="/knowledge" class="nav-link">知识库</router-link>
+        <router-link
+          to="/knowledge"
+          class="nav-link"
+          :class="{ active: isActive('/knowledge') }"
+          >知识库</router-link
+        >
         <el-button class="logout-btn" v-if="isLoggedIn" @click="handleLogout"
           >退出登录</el-button
         >
@@ -41,15 +56,25 @@
 </template>
 
 <script setup>
-  import { ref, onMounted } from "vue";
+  import { ref, onMounted, computed } from "vue";
   import { logout } from "@/api/admin";
-  import { useRouter } from "vue-router";
+  import { useRouter, useRoute } from "vue-router";
   import { ElMessage, ElMessageBox } from "element-plus";
 
   const router = useRouter();
+  const route = useRoute();
   const iconUrl = new URL("@/assets/images/机器人.png", import.meta.url).href;
 
   const isLoggedIn = ref(false);
+
+  // 获取当前路由路径，用于判断高亮
+  const currentPath = computed(() => route.path);
+
+  // 判断是否为当前路由
+  const isActive = (path) => {
+    return currentPath.value === path;
+  };
+
   // 退出登录
   const handleLogout = () => {
     ElMessageBox.confirm("确定退出登录吗？", "提示", {
@@ -101,8 +126,17 @@
           color: #4b5563;
           font-size: 16px;
           font-weight: 500;
+          padding: 8px 16px;
+          border-radius: 8px;
+          transition: all 0.3s ease;
           &:hover {
             color: #4a90e2;
+            background-color: rgba(74, 144, 226, 0.1);
+          }
+          &.active {
+            color: #4a90e2;
+            background-color: rgba(74, 144, 226, 0.15);
+            font-weight: 600;
           }
         }
       }
