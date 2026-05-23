@@ -292,14 +292,14 @@
   const tableData = ref([]);
   // 分页数据
   const pagination = reactive({
-    currentPage: 1,
+    current: 1,
     size: 10,
     total: 0,
   });
 
   // 分页效果
   const handleChange = (page) => {
-    pagination.currentPage = page;
+    pagination.current = page;
     handleSearch();
   };
 
