@@ -621,6 +621,7 @@
       overflow: hidden;
       scrollbar-width: thin;
       scrollbar-color: rgba(251, 146, 60, 0.2) transparent;
+      animation: slideInLeft 0.5s ease-out both;
       .ai-assistant-info {
         display: flex;
         align-items: center;
@@ -933,6 +934,8 @@
       overflow: hidden;
       flex: 1;
       transition: flex 0.3s ease;
+      animation: fadeInUp 0.5s ease-out both;
+      animation-delay: 0.15s;
       .chat-header {
         background: linear-gradient(135deg, #fb923c 0%, #f59e0b 100%);
         color: white;
@@ -1103,6 +1106,17 @@
           transition: all 0.3s ease;
         }
       }
+    }
+  }
+
+  @keyframes slideInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
     }
   }
 
