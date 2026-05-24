@@ -4,7 +4,7 @@ import { ElMessage } from "element-plus";
 // 创建axios实例
 const service = axios.create({
   baseURL: "/api",
-  timeout: 5000,
+  timeout: 10000,
 });
 
 // 请求拦截器
@@ -26,7 +26,12 @@ service.interceptors.response.use(
   (response) => {
     const { data } = response;
     // 同时支持字符串和数字类型的状态码
-    if (data.code === "200" || data.code === 200 || data.code === 0 || data.success === true) {
+    if (
+      data.code === "200" ||
+      data.code === 200 ||
+      data.code === 0 ||
+      data.success === true
+    ) {
       return data.data || data;
     } else {
       if (data.code === "-1" || data.code === -1) {

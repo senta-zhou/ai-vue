@@ -1,10 +1,6 @@
 <template>
   <div class="container">
     <div class="title">
-      <div @click="router.push('/')" class="back-home">
-        <el-icon><Back /></el-icon>
-        <span>返回首页</span>
-      </div>
       <div class="title-text">
         <h2>创建您的账号</h2>
         <p>请填写注册信息</p>
@@ -32,7 +28,7 @@
         </el-form-item>
 
         <el-form-item label="手机号" prop="phone">
-          <el-input v-model="formData.phone" placeholder="请输入手机号(可选)" />
+          <el-input v-model="formData.phone" placeholder="请输入手机号" />
         </el-form-item>
         <el-form-item label="密码" prop="password">
           <el-input
@@ -126,30 +122,45 @@
       .back-home {
         display: flex;
         align-items: center;
-        margin-bottom: 90px;
+        margin-bottom: 16px;
         cursor: pointer;
+        font-size: 14px;
+        color: #6b7280;
       }
       .title-text {
         text-align: center;
         h2 {
-          font-size: 27px;
-          margin-bottom: 5px;
+          font-size: 22px;
+          margin-bottom: 4px;
         }
         p {
-          font-size: 15px;
+          font-size: 13px;
           color: #6b7280;
         }
       }
     }
     .form-container {
-      margin-top: 30px;
+      margin-top: 16px;
+      :deep(.el-form-item) {
+        margin-bottom: 12px;
+      }
+      :deep(.el-form-item__label) {
+        font-size: 13px;
+        padding-bottom: 2px;
+      }
+      :deep(.el-input__inner) {
+        height: 36px;
+        font-size: 13px;
+      }
       .btn {
-        margin-top: 20px;
+        margin-top: 8px;
         width: 100%;
+        height: 40px;
       }
       .footer {
-        padding: 20px;
+        padding: 12px;
         text-align: center;
+        font-size: 13px;
       }
     }
   }
