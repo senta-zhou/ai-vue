@@ -1,6 +1,10 @@
 <template>
   <div class="container">
     <div class="title">
+      <div @click="router.push('/')" class="back-home">
+        <el-icon><Back /></el-icon>
+        <span>返回首页</span>
+      </div>
       <div class="title-text">
         <h2>创建您的账号</h2>
         <p>请填写注册信息</p>
@@ -68,6 +72,7 @@
   import { register } from "@/api/frontend";
   import { ElMessage } from "element-plus";
   import { useRouter } from "vue-router";
+  import { Back } from "@element-plus/icons-vue";
 
   const router = useRouter();
 
@@ -78,54 +83,34 @@
     phone: "",
     password: "",
     confirmPassword: "",
-    gender: 0,
+    gender: 1,
     userType: 1,
   });
 
   const rules = ref({
     username: [{ required: true, message: "请输入用户名", trigger: "blur" }],
     email: [{ required: true, message: "请输入邮箱", trigger: "blur" }],
+    phone: [{ required: true, message: "请输入手机号", trigger: "blur" }],
     password: [{ required: true, message: "请输入密码", trigger: "blur" }],
     confirmPassword: [
       { required: true, message: "请确认密码", trigger: "blur" },
-      // {
-      //   validator: (rule, value, callback) => {
-      //     if (value !== formData.password) {
-      //       callback(new Error("两次密码不一致"));
-      //     } else {
-      //       callback();
-      //     }
-      //   },
-      //   trigger: "blur",
-      // },
-      // {
-      //   validator: (rule, value, callback) => {
-      //     if (value.length < 6) {
-      //       callback(new Error("密码长度不能小于6位"));
-      //     } else {
-      //       callback();
-      //     }
-      //   },
-      //   trigger: "blur",
-      // },
     ],
   });
 
+  // 表单提交
   const submitFormRef = ref(null);
-  const submitForm = async (FormEl) => {
-    if (!FormEl) return;
-    FormEl.validate((valid) => {
+  const submitForm = (formEl) => {
+    if (!formEl) return;
+    formEl.validate((valid) => {
       if (!valid) return;
-      register(formData).then(({ data }) => {
-        console.log(data);
-        if (!data) {
-          ElMessage.success("注册成功");
+      register(formData)
+        .then(() => {
           router.push("/auth/login");
-        }
-        if (data.code === "BUSINESS_ERROR") {
-          ElMessage.error(data.msg || "注册失败");
-        }
-      });
+          ElMessage.success("注册成功");
+        })
+        .catch(() => {
+          // 拦截器已弹出错误提示
+        });
     });
   };
 </script>
@@ -138,6 +123,12 @@
       align-items: center;
     }
     .title {
+      .back-home {
+        display: flex;
+        align-items: center;
+        margin-bottom: 90px;
+        cursor: pointer;
+      }
       .title-text {
         text-align: center;
         h2 {

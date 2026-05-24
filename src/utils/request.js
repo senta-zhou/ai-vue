@@ -26,17 +26,20 @@ service.interceptors.response.use(
   (response) => {
     const { data } = response;
     // 同时支持字符串和数字类型的状态码
-    if (data.code === "200" || data.code === 200 || data.success === true) {
+    if (data.code === "200" || data.code === 200 || data.code === 0 || data.success === true) {
       return data.data || data;
     } else {
       if (data.code === "-1" || data.code === -1) {
-        if (!response.config.url?.includes("/login")) {
+        const hasToken = !!localStorage.getItem("token");
+        if (hasToken) {
+          // 已登录用户 token 过期，跳转登录页
           ElMessage.error(data.msg || data.message || "登录过期，请重新登录");
           localStorage.removeItem("token");
           localStorage.removeItem("userInfo");
           window.location.href = "/auth/login";
         } else {
-          ElMessage.error(data.msg || data.message || "登录失败");
+          // 未登录用户（注册等场景），仅显示错误提示
+          ElMessage.error(data.msg || data.message || "请求失败");
         }
       } else if (data.code === "500" || data.code === 500) {
         ElMessage.error(data.msg || data.message || "系统错误");

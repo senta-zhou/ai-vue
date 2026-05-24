@@ -98,10 +98,8 @@
               ElMessage.success("登录成功");
             }
           })
-          .catch((error) => {
-            ElMessage.error(
-              "登录失败：" + (error.response?.data?.msg || "网络异常"),
-            );
+          .catch(() => {
+            // 拦截器已弹出错误提示，此处不再重复
           });
       }
     });
