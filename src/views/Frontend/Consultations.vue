@@ -93,43 +93,38 @@
       </div>
       <!-- 会话列表 -->
       <div class="session-history">
-        <h4 class="session-title">会话列表</h4>
+        <h4 class="section-title">会话列表</h4>
         <div class="session-list">
           <div
             v-for="session in sessionList"
             :key="session.id"
             class="session-item"
+            :class="{ active: currentSession?.sessionId === 'session_' + session.id }"
             @click="handleSelectSession(session)"
           >
             <div class="session-info">
-              <div class="session-title">
-                <span>{{ session.sessionTitle }}</span>
-                <div class="session-meta">
-                  <span>{{ session.startAt }}</span>
-                </div>
-                <div class="session-preview">
-                  <span>{{ session.lastMessageContent }}</span>
-                </div>
-                <div class="session-stats">
-                  <span>
-                    <el-icon><ChatRound /></el-icon>
-                    {{ session.messageCount || 0 }}
-                  </span>
-                  <span>
-                    <el-icon><Clock /></el-icon>
-                    {{ session.durationMinutes || 0 }} 分钟
-                  </span>
-                </div>
+              <div class="session-title">{{ session.sessionTitle }}</div>
+              <div class="session-meta">{{ session.startAt }}</div>
+              <div class="session-preview">{{ session.lastMessageContent }}</div>
+              <div class="session-stats">
+                <span>
+                  <el-icon><ChatRound /></el-icon>
+                  {{ session.messageCount || 0 }}
+                </span>
+                <span>
+                  <el-icon><Clock /></el-icon>
+                  {{ session.durationMinutes || 0 }} 分钟
+                </span>
               </div>
-              <div class="session-actions">
-                <el-button
-                  text
-                  type="danger"
-                  @click="handleDeleteSession(session.id)"
-                >
-                  <el-icon><DeleteFilled /></el-icon>
-                </el-button>
-              </div>
+            </div>
+            <div class="session-actions">
+              <el-button
+                text
+                type="danger"
+                @click.stop="handleDeleteSession(session.id)"
+              >
+                <el-icon><DeleteFilled /></el-icon>
+              </el-button>
             </div>
           </div>
         </div>
@@ -273,7 +268,13 @@
     getSessionEmotion,
   } from "@/api/frontend";
   import { ElMessage, ElMessageBox } from "element-plus";
-  import { ChatRound, DeleteFilled } from "@element-plus/icons-vue";
+  import {
+  ChatRound,
+  Clock,
+  DeleteFilled,
+  Plus,
+  Promotion,
+} from "@element-plus/icons-vue";
   import MarkdownRenderer from "@/components/Frontend/MarkdownRenderer.vue";
   import { fetchEventSource } from "@microsoft/fetch-event-source";
 
@@ -579,6 +580,11 @@
     padding: 20px;
     .sidebar {
       width: 320px;
+      flex-shrink: 0;
+      overflow-y: auto;
+      max-height: calc(100vh - 40px);
+      scrollbar-width: thin;
+      scrollbar-color: rgba(251, 146, 60, 0.2) transparent;
       .ai-assistant-info {
         margin-bottom: 20px;
         background: linear-gradient(
@@ -662,7 +668,7 @@
             position: relative;
             display: flex;
             align-items: flex-start;
-            gap: 12px;
+            gap: 8px;
             padding: 12px;
             margin-bottom: 8px;
             border-radius: 12px;
@@ -672,6 +678,10 @@
             &:hover {
               background: #f8f9ff;
               border-color: #e6f0ff;
+              .session-actions {
+                opacity: 1;
+                visibility: visible;
+              }
             }
             &.active {
               background: #e6f0ff;
@@ -679,6 +689,7 @@
             }
             .session-info {
               flex: 1;
+              min-width: 0;
               .session-title {
                 font-weight: 500;
                 font-size: 14px;
@@ -687,56 +698,44 @@
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
-                .session-meta {
-                  display: flex;
-                  align-items: center;
-                  gap: 8px;
-                  margin-bottom: 6px;
-                  .session-time {
-                    font-size: 12px;
-                    color: #999;
-                  }
-                }
-                .session-preview {
-                  width: 200px;
+              }
+              .session-meta {
+                font-size: 12px;
+                color: #999;
+                margin-bottom: 4px;
+              }
+              .session-preview {
+                font-size: 12px;
+                color: #666;
+                margin-bottom: 6px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+              }
+              .session-stats {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                span {
                   font-size: 12px;
-                  color: #666;
-                  margin-bottom: 6px;
-                  white-space: nowrap;
-                  overflow: hidden;
-                  text-overflow: ellipsis;
-                }
-                .session-stats {
+                  color: #999;
                   display: flex;
                   align-items: center;
-                  gap: 12px;
-                  span {
-                    font-size: 12px;
-                    color: #999;
-                    display: flex;
-                    align-items: center;
-                    gap: 4px;
-                  }
+                  gap: 4px;
                 }
               }
-              .session-actions {
-                position: absolute;
-                bottom: 15px;
-                right: 10px;
-                opacity: 0;
-                visibility: hidden;
-                transition: all 0.3s ease;
-                .el-button {
-                  padding: 4px 8px;
-                  font-size: 14px;
-                  border-radius: 4px;
-                }
-              }
-              &:hover {
-                .session-actions {
-                  opacity: 1;
-                  visibility: visible;
-                }
+            }
+            .session-actions {
+              position: absolute;
+              top: 8px;
+              right: 8px;
+              opacity: 0;
+              visibility: hidden;
+              transition: all 0.3s ease;
+              .el-button {
+                padding: 4px 8px;
+                font-size: 14px;
+                border-radius: 4px;
               }
             }
           }
@@ -761,7 +760,10 @@
         border: 1px solid rgba(255, 255, 255, 0.2);
         position: relative;
         overflow: hidden;
-        min-height: 300px;
+        max-height: 420px;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(139, 115, 85, 0.2) transparent;
 
         .garden-header {
           display: flex;
