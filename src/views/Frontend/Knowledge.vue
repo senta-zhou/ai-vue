@@ -163,6 +163,7 @@
       background: linear-gradient(135deg, #f59e0b 0%, #8b5cf6 100%);
       color: white;
       padding: 48px;
+      animation: fadeInDown 0.5s ease-out;
       .header-content {
         display: flex;
         align-items: center;
@@ -182,6 +183,8 @@
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
         padding: 15px;
         height: 400px;
+        animation: fadeInLeft 0.5s ease-out both;
+        animation-delay: 0.15s;
         .section-title {
           font-size: 12;
           font-weight: 600;
@@ -219,6 +222,12 @@
           padding: 15px;
           margin-bottom: 20px;
           display: flex;
+          animation: fadeInUp 0.5s ease-out both;
+          &:nth-child(1) { animation-delay: 0.2s; }
+          &:nth-child(2) { animation-delay: 0.3s; }
+          &:nth-child(3) { animation-delay: 0.4s; }
+          &:nth-child(4) { animation-delay: 0.5s; }
+          &:nth-child(5) { animation-delay: 0.6s; }
           .info {
             margin-left: 20px;
             .title {
@@ -235,5 +244,20 @@
       justify-content: center;
       padding-bottom: 30px;
     }
+    }
+
+  @keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeInLeft {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 </style>

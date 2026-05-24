@@ -116,6 +116,7 @@
       background: linear-gradient(135deg, #f59e0b 0%, #8b5cf6 100%);
       color: white;
       padding: 48px;
+      animation: fadeInDown 0.5s ease-out;
       .header-content {
         display: flex;
         align-items: center;
@@ -132,6 +133,9 @@
         border-radius: 10px;
         padding: 20px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        animation: fadeInUp 0.5s ease-out both;
+        &:nth-child(1) { animation-delay: 0.15s; }
+        &:nth-child(2) { animation-delay: 0.3s; }
         .title {
           margin-bottom: 15px;
           font-size: 20px;
@@ -211,5 +215,15 @@
         }
       }
     }
+    }
+
+  @keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 </style>

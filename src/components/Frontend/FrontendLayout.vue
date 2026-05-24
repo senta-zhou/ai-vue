@@ -45,7 +45,11 @@
       </div>
     </div>
     <div class="main-content">
-      <router-view></router-view>
+      <router-view v-slot="{ Component }">
+        <transition name="page-fade" mode="out-in">
+          <component :is="Component" />
+        </transition>
+      </router-view>
     </div>
     <div class="footer-container">
       <div class="footer-bottom">
@@ -100,14 +104,18 @@
 <style lang="scss" scoped>
   .frontend-layout {
     background-color: #fff;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
     .navbar-container {
+      width: 100%;
       max-width: 1200px;
-      height: 100%;
       margin: 0 auto;
       padding: 10px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      flex-shrink: 0;
       .brand-section {
         display: flex;
         align-items: center;
@@ -142,11 +150,30 @@
       }
     }
 
+    .main-content {
+      flex: 1;
+      overflow: auto;
+      min-height: 0;
+    }
+
+    .page-fade-enter-active,
+    .page-fade-leave-active {
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+    .page-fade-enter-from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    .page-fade-leave-to {
+      opacity: 0;
+      transform: translateY(-12px);
+    }
+
     .footer-container {
       background: #1f2937;
       color: white;
       padding: 15px 0;
-      margin-top: auto;
+      flex-shrink: 0;
       .footer-bottom {
         max-width: 1200px;
         margin: 0 auto;

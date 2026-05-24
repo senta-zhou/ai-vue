@@ -15,7 +15,13 @@
         </div>
       </div>
     </div>
-    <div class="right-section"><router-view></router-view></div>
+    <div class="right-section">
+      <router-view v-slot="{ Component }">
+        <transition name="page-fade" mode="out-in">
+          <component :is="Component" />
+        </transition>
+      </router-view>
+    </div>
   </div>
 </template>
 <script setup>
@@ -80,6 +86,19 @@ const iconUrl = new URL("@/assets/images/robot-fill.png", import.meta.url).href;
     flex: 1;
     height: 100vh;
     background-color: #fff;
+  }
+
+  .page-fade-enter-active,
+  .page-fade-leave-active {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  .page-fade-enter-from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  .page-fade-leave-to {
+    opacity: 0;
+    transform: translateY(-8px);
   }
 }
 </style>

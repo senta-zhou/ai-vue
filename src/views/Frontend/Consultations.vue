@@ -1,96 +1,32 @@
 <template>
-  <div class="consultation-container">
+  <div
+    class="consultation-container"
+    :class="{ 'sidebar-hidden': !sidebarVisible }"
+  >
     <!-- 侧边栏 -->
-    <div class="sidebar">
+    <div
+      class="sidebar"
+      v-show="sidebarVisible"
+      :style="{ width: sidebarWidth + 'px' }"
+    >
       <!-- ai助手信息 -->
       <div class="ai-assistant-info">
         <div class="breathing-circle">
           <el-image
             :src="iconUrl"
-            style="width: 30px; height: 30px"
+            style="width: 22px; height: 22px"
             alt="ai助手"
           />
         </div>
-        <h3 class="assistant-name">宁渡AI助手</h3>
-        <div class="online-status">
-          <div class="status-dot"></div>
-          正在服务中
+        <div class="assistant-details">
+          <h3 class="assistant-name">宁渡AI助手</h3>
+          <div class="online-status">
+            <div class="status-dot"></div>
+            正在服务中
+          </div>
         </div>
       </div>
 
-      <!-- 情绪花园 -->
-      <div class="emotion-garden">
-        <div class="garden-header">
-          <div class="garden-title">情绪花园</div>
-        </div>
-        <div class="emotion-info">
-          <div class="emotion-name">中性</div>
-          <div class="emotion-score">50</div>
-        </div>
-        <div class="warm-tips">
-          <div class="emotion-status-text">
-            <span class="status-label">今天感觉：</span>
-            <span class="status-emotion">{{
-              currentEmotion.isNegative ? "需要关注" : "很不错"
-            }}</span>
-          </div>
-          <div class="emotion-intensity">
-            <span class="intensity-dots">
-              <span
-                class="dot"
-                v-for="dot in 3"
-                :key="dot"
-                :class="{
-                  active: getIntensityClass(currentEmotion.emotionScore) >= dot,
-                }"
-              ></span>
-            </span>
-            <span class="intensity-text">
-              {{ getRiskText(currentEmotion.riskLevel) }}
-            </span>
-          </div>
-          <!-- 温暖建议 -->
-          <div class="warm-suggestion" v-if="currentEmotion.suggestion">
-            <div class="suggestion-icon">💝</div>
-            <div class="suggestion-content">
-              <div class="suggestion-title">给你的小建议</div>
-              <div class="suggestion-text">
-                {{ currentEmotion.suggestion }}
-              </div>
-            </div>
-          </div>
-          <!-- 治愈行动 -->
-          <div
-            class="healing-actions"
-            v-if="currentEmotion.improvementSuggestions.length > 0"
-          >
-            <div class="actions-title">治愈小行动</div>
-            <div class="actions-list">
-              <div
-                class="action-item"
-                v-for="action in currentEmotion.improvementSuggestions"
-                :key="action"
-              >
-                <div class="action-icon">✨</div>
-                <div class="action-text">{{ action }}</div>
-              </div>
-            </div>
-          </div>
-          <!-- 风险提醒 -->
-          <div
-            class="risk-notice"
-            v-if="currentEmotion.isNegative && currentEmotion.riskLevel > 1"
-          >
-            <div class="notice-icon">🤗</div>
-            <div class="notice-content">
-              <div class="notice-title">温馨提示</div>
-              <div class="notice-text">
-                {{ currentEmotion.riskDescription }}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
       <!-- 会话列表 -->
       <div class="session-history">
         <h4 class="section-title">会话列表</h4>
@@ -99,21 +35,21 @@
             v-for="session in sessionList"
             :key="session.id"
             class="session-item"
-            :class="{ active: currentSession?.sessionId === 'session_' + session.id }"
+            :class="{
+              active: currentSession?.sessionId === 'session_' + session.id,
+            }"
             @click="handleSelectSession(session)"
           >
             <div class="session-info">
               <div class="session-title">{{ session.sessionTitle }}</div>
               <div class="session-meta">{{ session.startAt }}</div>
-              <div class="session-preview">{{ session.lastMessageContent }}</div>
+              <div class="session-preview">
+                {{ session.lastMessageContent }}
+              </div>
               <div class="session-stats">
                 <span>
                   <el-icon><ChatRound /></el-icon>
                   {{ session.messageCount || 0 }}
-                </span>
-                <span>
-                  <el-icon><Clock /></el-icon>
-                  {{ session.durationMinutes || 0 }} 分钟
                 </span>
               </div>
             </div>
@@ -129,25 +65,74 @@
           </div>
         </div>
       </div>
+
+      <!-- 情绪花园 -->
+      <div class="emotion-garden">
+        <div class="garden-header">
+          <span class="garden-icon">🌻</span>
+          <span class="garden-title">情绪花园</span>
+        </div>
+        <div class="emotion-row">
+          <div class="emotion-circle">
+            <div class="emotion-name">{{ currentEmotion.primaryEmotion }}</div>
+            <div class="emotion-score">{{ currentEmotion.emotionScore }}</div>
+          </div>
+          <div class="emotion-detail">
+            <div class="emotion-feel">
+              {{ currentEmotion.isNegative ? "需要关注" : "很不错" }}
+            </div>
+            <div class="emotion-intensity">
+              <span class="intensity-label">情绪强度</span>
+              <span class="intensity-dots">
+                <span
+                  class="dot"
+                  v-for="dot in 3"
+                  :key="dot"
+                  :class="{
+                    active:
+                      getIntensityClass(currentEmotion.emotionScore) >= dot,
+                  }"
+                ></span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <!-- 拖拽调节条 -->
+    <div
+      class="resize-handle"
+      v-show="sidebarVisible"
+      @mousedown="startResize"
+    ></div>
 
     <!-- 聊天主区域 -->
     <div class="chat-main">
       <!-- 顶部标题区域 -->
       <div class="chat-header">
-        <!-- 对话标题区域 -->
         <div class="header-left">
-          <div class="chat-avatar">
-            <el-image :src="iconUrl1" style="width: 30px; height: 30px" />
-          </div>
-          <div class="chat-info">
-            <h2>宁渡AI助手</h2>
-            <p>您贴心的AI助手</p>
-          </div>
+          <el-button
+            circle
+            @click="sidebarVisible = !sidebarVisible"
+            :title="sidebarVisible ? '隐藏侧边栏' : '显示侧边栏'"
+            size="small"
+          >
+            <el-icon><Fold v-if="sidebarVisible" /><Expand v-else /></el-icon>
+          </el-button>
         </div>
-        <!-- 新建对话按钮 -->
+        <div class="header-center">
+          <span class="session-title-text">{{
+            currentSession?.sessionTitle || "新对话"
+          }}</span>
+        </div>
         <div class="header-right">
-          <el-button circle @click="createNewFrontendSession" title="新建对话">
+          <el-button
+            circle
+            @click="createNewFrontendSession"
+            title="新建对话"
+            size="small"
+          >
             <el-icon><Plus /></el-icon>
           </el-button>
         </div>
@@ -269,18 +254,18 @@
   } from "@/api/frontend";
   import { ElMessage, ElMessageBox } from "element-plus";
   import {
-  ChatRound,
-  Clock,
-  DeleteFilled,
-  Plus,
-  Promotion,
-} from "@element-plus/icons-vue";
+    ChatRound,
+    DeleteFilled,
+    Plus,
+    Promotion,
+    Fold,
+    Expand,
+  } from "@element-plus/icons-vue";
   import MarkdownRenderer from "@/components/Frontend/MarkdownRenderer.vue";
   import { fetchEventSource } from "@microsoft/fetch-event-source";
 
   const iconUrl = new URL("@/assets/images/robot-fill.png", import.meta.url)
     .href;
-  const iconUrl1 = new URL("@/assets/images/like.png", import.meta.url).href;
   const iconUrl2 = new URL("@/assets/images/users.png", import.meta.url).href;
   // 创建新对话
   const createNewFrontendSession = () => {
@@ -294,6 +279,42 @@
     };
     // 设置当前会话为新会话
     currentSession.value = newSession;
+  };
+
+  // 侧边栏显示状态
+  const sidebarVisible = ref(true);
+  // 侧边栏宽度
+  const sidebarWidth = ref(260);
+  // 拖拽调整宽度
+  const isResizing = ref(false);
+  let startX = 0;
+  let startWidth = 0;
+
+  const startResize = (e) => {
+    isResizing.value = true;
+    startX = e.clientX;
+    startWidth = sidebarWidth.value;
+    document.addEventListener("mousemove", onResize);
+    document.addEventListener("mouseup", stopResize);
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+  };
+
+  const onResize = (e) => {
+    if (!isResizing.value) return;
+    const delta = e.clientX - startX;
+    const newWidth = startWidth + delta;
+    if (newWidth >= 200 && newWidth <= 500) {
+      sidebarWidth.value = newWidth;
+    }
+  };
+
+  const stopResize = () => {
+    isResizing.value = false;
+    document.removeEventListener("mousemove", onResize);
+    document.removeEventListener("mouseup", stopResize);
+    document.body.style.cursor = "";
+    document.body.style.userSelect = "";
   };
 
   // 定义当前会话对象
@@ -333,22 +354,6 @@
     if (score >= 61) return 3;
     if (score >= 31) return 2;
     return 1;
-  };
-
-  // 定义风险等级文本
-  const getRiskText = (level) => {
-    switch (level) {
-      case 0:
-        return "正常";
-      case 1:
-        return "关注";
-      case 2:
-        return "预警";
-      case 3:
-        return "危机";
-      default:
-        return "正常";
-    }
   };
 
   // 处理键盘事件
@@ -546,7 +551,10 @@
       deleteSession(sessionId).then((res) => {
         ElMessage.success("删除成功");
         // 如果删除的是当前选中的会话，则清空聊天记录并创建新对话
-        if (currentSession.value && currentSession.value.sessionId === `session_${sessionId}`) {
+        if (
+          currentSession.value &&
+          currentSession.value.sessionId === `session_${sessionId}`
+        ) {
           messages.value = [];
           createNewFrontendSession();
         }
@@ -575,58 +583,92 @@
   .consultation-container {
     margin: 0 auto;
     width: 1200px;
+    height: 100%;
     display: flex;
-    gap: 20px;
-    padding: 20px;
-    .sidebar {
-      width: 320px;
+    padding: 0 20px 20px;
+    box-sizing: border-box;
+    transition: width 0.3s ease;
+    &.sidebar-hidden {
+      width: 100%;
+    }
+    .resize-handle {
+      width: 6px;
       flex-shrink: 0;
-      overflow-y: auto;
-      max-height: calc(100vh - 40px);
+      cursor: col-resize;
+      position: relative;
+      margin: 0 4px;
+      &::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 2px;
+        border-radius: 1px;
+        background: transparent;
+        transition: background 0.2s;
+      }
+      &:hover::after,
+      &:active::after {
+        background: rgba(251, 146, 60, 0.4);
+      }
+    }
+    .sidebar {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
       scrollbar-width: thin;
       scrollbar-color: rgba(251, 146, 60, 0.2) transparent;
       .ai-assistant-info {
-        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
         background: linear-gradient(
           135deg,
           rgba(255, 255, 255, 0.9) 0%,
           rgba(255, 252, 248, 0.95) 100%
         );
         border-radius: 16px;
-        padding: 16px;
+        padding: 12px 16px;
         box-shadow:
           0 8px 32px rgba(251, 146, 60, 0.06),
           0 2px 8px rgba(0, 0, 0, 0.04);
         border: 1px solid rgba(251, 146, 60, 0.08);
         backdrop-filter: blur(10px);
         transition: all 0.3s ease;
+        flex-shrink: 0;
         .breathing-circle {
-          width: 60px;
-          height: 60px;
+          width: 40px;
+          height: 40px;
           background: linear-gradient(135deg, #fb923c 0%, #f59e0b 100%);
           border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
-          margin: 0 auto 12px;
+          flex-shrink: 0;
           animation: breathing 4s ease-in-out infinite;
           box-shadow: 0 6px 24px rgba(251, 146, 60, 0.25);
           position: relative;
         }
+        .assistant-details {
+          flex: 1;
+          min-width: 0;
+        }
         .assistant-name {
-          font-size: 16px;
+          font-size: 15px;
           font-weight: 700;
           background: linear-gradient(135deg, #fb923c, #f59e0b);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
-          text-align: center;
           background-clip: text;
-          margin: 0 0 12px;
+          margin: 0 0 4px;
         }
         .online-status {
           display: flex;
           align-items: center;
-          justify-content: center;
           color: #059669;
           font-size: 12px;
           font-weight: 600;
@@ -642,14 +684,15 @@
         }
       }
       .session-history {
+        flex: 1;
         background: white;
         border-radius: 16px;
         padding: 16px;
         box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-        margin-bottom: 20px;
-        min-height: 250px;
+        margin-bottom: 12px;
         display: flex;
         flex-direction: column;
+        min-height: 0;
         .section-title {
           font-size: 16px;
           font-weight: 600;
@@ -658,10 +701,11 @@
           display: flex;
           align-items: center;
           justify-content: space-between;
+          flex-shrink: 0;
         }
         .session-list {
+          flex: 1;
           overflow-y: auto;
-          max-height: 200px;
           scrollbar-width: thin;
           scrollbar-color: rgba(64, 150, 255, 0.3) transparent;
           .session-item {
@@ -727,7 +771,7 @@
             }
             .session-actions {
               position: absolute;
-              top: 8px;
+              bottom: 5px;
               right: 8px;
               opacity: 0;
               visibility: hidden;
@@ -748,221 +792,124 @@
       }
       .emotion-garden {
         background: linear-gradient(
-          135deg,
-          #fef9e7 0%,
-          #fcf4e6 50%,
-          #f6f0e8 100%
+          160deg,
+          #fefcf5 0%,
+          #fdf6ea 30%,
+          #faf0e0 100%
         );
-        border-radius: 20px;
-        padding: 16px;
-        margin-bottom: 20px;
-        box-shadow: 0 8px 32px rgba(252, 244, 230, 0.8);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 14px;
+        padding: 14px 16px;
+        box-shadow:
+          0 4px 20px rgba(180, 140, 100, 0.08),
+          0 1px 4px rgba(0, 0, 0, 0.04);
+        border: 1px solid rgba(200, 170, 130, 0.15);
+        flex-shrink: 0;
         position: relative;
         overflow: hidden;
-        max-height: 420px;
-        overflow-y: auto;
-        scrollbar-width: thin;
-        scrollbar-color: rgba(139, 115, 85, 0.2) transparent;
-
+        &::before {
+          content: "";
+          position: absolute;
+          top: -20px;
+          right: -20px;
+          width: 80px;
+          height: 80px;
+          border-radius: 50%;
+          background: radial-gradient(
+            circle,
+            rgba(255, 183, 128, 0.15) 0%,
+            transparent 70%
+          );
+          pointer-events: none;
+        }
         .garden-header {
           display: flex;
           align-items: center;
-          justify-content: space-between;
-          margin-bottom: 20px;
+          gap: 6px;
+          margin-bottom: 12px;
           position: relative;
-          z-index: 2;
+          .garden-icon {
+            font-size: 15px;
+          }
           .garden-title {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 16px;
+            font-size: 13px;
             font-weight: 600;
-            color: #8b4513;
+            color: #8b6914;
+            letter-spacing: 0.5px;
           }
         }
-        .emotion-info {
-          margin: 0 auto;
-          width: 80px;
-          height: 80px;
+        .emotion-row {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          position: relative;
+        }
+        .emotion-circle {
+          width: 54px;
+          height: 54px;
           border-radius: 50%;
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          z-index: 10;
-          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-          border: 2px solid rgba(255, 255, 255, 0.8);
+          flex-shrink: 0;
           background: linear-gradient(
-            135deg,
-            #ff9a9e 0%,
-            #fecfef 50%,
-            #fecfef 100%
+            145deg,
+            #f9a8b8 0%,
+            #f7c6d0 40%,
+            #fad1db 100%
           );
+          box-shadow:
+            0 4px 14px rgba(249, 168, 184, 0.35),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3);
           color: #fff;
           .emotion-name {
-            font-size: 15px;
+            font-size: 12px;
             font-weight: 600;
             line-height: 1;
             margin-bottom: 2px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
           }
           .emotion-score {
             font-size: 14px;
             font-weight: 700;
-            opacity: 0.9;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
           }
         }
-        .warm-tips {
-          text-align: center;
-          margin-bottom: 16px;
-          .emotion-status-text {
-            margin-bottom: 12px;
-            .status-label {
-              font-size: 14px;
-              color: #8b7355;
-              margin-right: 8px;
-            }
-            .status-emotion {
-              font-size: 16px;
-              font-weight: 600;
-              padding: 4px 12px;
-              border-radius: 16px;
-              display: inline-block;
-            }
+        .emotion-detail {
+          flex: 1;
+          min-width: 0;
+          .emotion-feel {
+            font-size: 14px;
+            font-weight: 600;
+            color: #6b4c2b;
+            margin-bottom: 8px;
           }
           .emotion-intensity {
-            margin-bottom: 16px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 8px;
+            gap: 10px;
+            .intensity-label {
+              font-size: 11px;
+              color: #a0896c;
+              font-weight: 500;
+            }
             .intensity-dots {
               display: flex;
-              gap: 4px;
+              gap: 5px;
               .dot {
                 width: 8px;
                 height: 8px;
                 border-radius: 50%;
-                background: #e0e0e0;
-                transition: all 0.3s ease;
+                background: #e5d9cc;
+                transition: all 0.35s ease;
+                box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06);
                 &.active {
-                  background: linear-gradient(135deg, #ff9a9e, #fecfef);
-                  transform: scale(1.2);
-                  box-shadow: 0 2px 8px rgba(255, 154, 158, 0.4);
+                  background: linear-gradient(135deg, #f9a8b8, #e892a3);
+                  transform: scale(1.25);
+                  box-shadow:
+                    0 2px 6px rgba(249, 168, 184, 0.4),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.2);
                 }
-              }
-            }
-            .intensity-text {
-              font-size: 12px;
-              color: #8b7355;
-              font-weight: 500;
-            }
-          }
-          .warm-suggestion {
-            background: linear-gradient(
-              135deg,
-              rgba(255, 255, 255, 0.95),
-              rgba(255, 255, 255, 0.8)
-            );
-            border-radius: 16px;
-            padding: 12px;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-            .suggestion-icon {
-              font-size: 20px;
-              flex-shrink: 0;
-              margin-top: 2px;
-            }
-            .suggestion-content {
-              text-align: left;
-              flex: 1;
-              .suggestion-title {
-                font-size: 14px;
-                font-weight: 600;
-                color: #8b7355;
-                margin-bottom: 6px;
-              }
-              .suggestion-text {
-                font-size: 13px;
-                color: #6b5b47;
-                line-height: 1.5;
-              }
-            }
-          }
-          .healing-actions {
-            margin-bottom: 16px;
-            .actions-title {
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              gap: 8px;
-              font-size: 14px;
-              font-weight: 600;
-              color: #8b7355;
-              margin-bottom: 16px;
-            }
-            .actions-list {
-              display: flex;
-              flex-direction: column;
-              gap: 10px;
-              .action-item {
-                background: linear-gradient(
-                  135deg,
-                  rgba(255, 255, 255, 0.9),
-                  rgba(255, 255, 255, 0.7)
-                );
-                border-radius: 12px;
-                padding: 12px;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                border: 1px solid rgba(255, 255, 255, 0.5);
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-                text-align: left;
-                .action-icon {
-                  font-size: 14px;
-                  color: #ffd700;
-                  flex-shrink: 0;
-                }
-                .action-text {
-                  font-size: 12px;
-                  color: #6b5b47;
-                  line-height: 1.4;
-                  flex: 1;
-                }
-              }
-            }
-          }
-          .risk-notice {
-            background: linear-gradient(135deg, #fff9e6, #ffeaa7);
-            border-radius: 16px;
-            padding: 16px;
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            border: 1px solid rgba(255, 234, 167, 0.6);
-            box-shadow: 0 6px 20px rgba(255, 234, 167, 0.3);
-            .notice-icon {
-              font-size: 20px;
-              flex-shrink: 0;
-              margin-top: 2px;
-            }
-            .notice-content {
-              flex: 1;
-              .notice-title {
-                font-size: 14px;
-                font-weight: 600;
-                color: #d4840f;
-                margin-bottom: 6px;
-              }
-              .notice-text {
-                font-size: 13px;
-                color: #b8740c;
-                line-height: 1.5;
               }
             }
           }
@@ -985,41 +932,30 @@
       flex-direction: column;
       overflow: hidden;
       flex: 1;
+      transition: flex 0.3s ease;
       .chat-header {
         background: linear-gradient(135deg, #fb923c 0%, #f59e0b 100%);
         color: white;
-        padding: 20px 24px;
+        padding: 10px 20px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        position: relative;
         flex-shrink: 0;
         .header-left {
           display: flex;
           align-items: center;
-          .chat-avatar {
-            width: 48px;
-            height: 48px;
-            background: rgba(255, 255, 255, 0.25);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 16px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            position: relative;
-            z-index: 1;
+        }
+        .header-center {
+          flex: 1;
+          text-align: center;
+          .session-title-text {
+            font-size: 15px;
+            font-weight: 600;
           }
-          .chat-info {
-            h2 {
-              font-size: 20px;
-              font-weight: 700;
-              margin-bottom: 4px;
-            }
-            p {
-              font-size: 14px;
-            }
-          }
+        }
+        .header-right {
+          display: flex;
+          align-items: center;
         }
       }
       .chat-messages {
@@ -1035,7 +971,6 @@
           rgba(255, 252, 248, 0.05) 100%
         );
         min-height: 0;
-        max-height: calc(100vh - 200px);
         scrollbar-width: thin;
         scrollbar-color: rgba(251, 146, 60, 0.3) transparent;
         .message-item {
@@ -1060,9 +995,21 @@
             }
           }
           &.user-message {
+            flex-direction: row-reverse;
             .message-avatar {
-              background: linear-gradient(135deg, #6b7280, #4b5563);
-              box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+              background: linear-gradient(135deg, #4096ff, #1677ff);
+              box-shadow: 0 4px 12px rgba(64, 150, 255, 0.3);
+            }
+            .message-content {
+              .message-bubble {
+                background: linear-gradient(135deg, #4096ff, #1677ff);
+                border: none;
+                box-shadow: 0 4px 16px rgba(64, 150, 255, 0.2);
+                color: #fff;
+              }
+              .message-time {
+                text-align: right;
+              }
             }
           }
           .message-content {
@@ -1156,6 +1103,54 @@
           transition: all 0.3s ease;
         }
       }
+    }
+  }
+
+  @keyframes breathing {
+    0%,
+    100% {
+      transform: scale(1);
+      opacity: 0.9;
+    }
+    50% {
+      transform: scale(1.15);
+      opacity: 1;
+    }
+  }
+
+  @keyframes pulse {
+    0%,
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.4);
+      opacity: 0.5;
+    }
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes typing {
+    0%,
+    60%,
+    100% {
+      transform: translateY(0);
+      opacity: 0.4;
+    }
+    30% {
+      transform: translateY(-8px);
+      opacity: 1;
     }
   }
 </style>

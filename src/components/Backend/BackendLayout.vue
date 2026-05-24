@@ -11,7 +11,11 @@
         </el-header>
         <el-main>
           <!-- 子路由出口 -->
-          <router-view class="content-container" />
+          <router-view class="content-container" v-slot="{ Component }">
+            <transition name="page-fade" mode="out-in">
+              <component :is="Component" />
+            </transition>
+          </router-view>
         </el-main>
       </el-container>
     </el-container>
@@ -23,6 +27,19 @@ import Navbar from "./Navbar.vue";
 </script>
 
 <style lang="scss" scoped>
+.page-fade-enter-active,
+.page-fade-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.page-fade-enter-from {
+  opacity: 0;
+  transform: translateY(16px);
+}
+.page-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
 .backend-layout {
   height: 100vh;
   .el-header {
