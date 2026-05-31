@@ -25,3 +25,6 @@ dist-ssr
 .claude/skills/
 ui-ux-pro-max-skill/
 .claude/skills/ui-ux-pro-max
+
+# MCP config (contains API tokens)
+.mcp.json
