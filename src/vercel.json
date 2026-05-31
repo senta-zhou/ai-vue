@@ -1,11 +1,12 @@
 {
+  "version": 2,
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "http://159.75.169.224:1235/api/$1"
+      "source": "/api/:path*",
+      "destination": "http://159.75.169.224:1235/api/:path*"
     },
     {
-      "source": "/(.*)",
+      "source": "/:path*",
       "destination": "/index.html"
     }
   ]
