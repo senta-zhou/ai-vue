@@ -143,14 +143,6 @@ npm run preview
 - [ ] 实现离线缓存支持
 - [ ] 多语言国际化支持
 
-## 📄 许可证
-
-MIT License
-
-## 👤 作者
-
-Miles Zhou
-
 ---
 
 **如有问题或建议，欢迎提出 Issue 或 PR！**
